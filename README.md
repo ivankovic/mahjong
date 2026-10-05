@@ -2,6 +2,13 @@
 
 Mahjong solitaire on the classic 144-tile turtle layout, in the browser.
 
+It comes with five tile styles: Classic, and four for kids: Dog Park,
+Chameleon Jungle, Coral Reef and Haunted Night. The kids' styles keep the
+structure of a real set. There are three suits of 1 to 9 pictures to count,
+each tile with its number at the top. There are seven single pictures in
+place of the winds and dragons, and two groups of four in place of the
+flowers and seasons, where any tile matches any other tile in its group.
+
 Pick two free tiles with the same face to clear them. A tile is free when
 nothing rests on it and its left or right side is open. Any flower matches
 any flower, and any season matches any season.
@@ -41,7 +48,14 @@ Then open <http://localhost:8000/>.
 - `index.html`: the page
 - `src/game.js`: layout, dealing, rules and the board
 - `src/style.css`: the table and the tiles' bodies
-- `assets/tiles.svg`: the 42 tile faces, one `<symbol>` each
+- `assets/themes/<style>.svg`: each style's 42 tile faces, one `<symbol>` each
+- `assets/themes/themes.json`: the styles, and the names of their tiles
+- `assets/src/build.mjs`: draws all of the above
+
+The sprites are generated. To change a picture, edit `assets/src/build.mjs`
+and run `node assets/src/build.mjs`, then commit both. The page's colours,
+fonts and tile bodies for each style are the `[data-skin]` blocks in
+`src/style.css`.
 
 ## Deployment
 
@@ -52,6 +66,6 @@ push to `main`. In the repository's Settings → Pages, the source must be
 ## License
 
 - Code: [AGPL-3.0-or-later](LICENSE).
-- Art (`assets/`): [CC-BY-NC-ND-4.0](LICENSES/CC-BY-NC-ND-4.0.txt).
+- Art (`assets/`, including `assets/src/build.mjs`, which is the source of the drawings): [CC-BY-NC-ND-4.0](LICENSES/CC-BY-NC-ND-4.0.txt).
 
 See [`REUSE.toml`](REUSE.toml) for the per-path license mapping.

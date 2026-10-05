@@ -41,19 +41,16 @@
   KINDS.push('wE', 'wS', 'wW', 'wN', 'gR', 'gG', 'gW');
   const keyOf = f => f[0] === 'f' ? 'F' : f[0] === 's' ? 'S' : f;
 
-  // The faces themselves are drawn in assets/tiles.svg, one <symbol id="k-…"> per face.
-  const WIND_NAME = { E: 'East', S: 'South', W: 'West', N: 'North' };
-  const FLOWER_NAME = ['Plum', 'Orchid', 'Chrysanthemum', 'Bamboo'];
-  const SEASON_NAME = ['Spring', 'Summer', 'Autumn', 'Winter'];
+  // The faces are drawn per style in assets/themes/<style>.svg, one
+  // <symbol id="<style>-k-<face>"> each; themes.json names the styles and faces.
+  const HONOURS = ['wE', 'wS', 'wW', 'wN', 'gR', 'gG', 'gW'];
+  let THEMES = [], theme = null;
   const nameOf = f => {
     const k = f[0], v = f.slice(1);
-    if (k === 'c') return v + ' of characters';
-    if (k === 'b') return v + ' of bamboo';
-    if (k === 'd') return v + ' of dots';
-    if (k === 'w') return WIND_NAME[v] + ' wind';
-    if (k === 'g') return { R: 'Red', G: 'Green', W: 'White' }[v] + ' dragon';
-    if (k === 'f') return FLOWER_NAME[v - 1] + ' flower';
-    return SEASON_NAME[v - 1] + ' season';
+    if (k in theme.suits) return v + ' ' + theme.suits[k];
+    if (k === 'f') return theme.flowers.items[v - 1];
+    if (k === 's') return theme.seasons.items[v - 1];
+    return theme.honours[HONOURS.indexOf(f)];
   };
 
   /* ---------- Dealing ---------- */
@@ -106,7 +103,8 @@
   function fresh(seed) {
     return { seed, faces: deal(seed), present: Array(N).fill(1), history: [], elapsed: 0, started: false, over: false };
   }
-  const STORE = 'turtle-mahjong-game', BEST = 'turtle-mahjong-best', SHADE = 'turtle-mahjong-shade';
+  const STORE = 'turtle-mahjong-game', BEST = 'turtle-mahjong-best', SHADE = 'turtle-mahjong-shade',
+    SKIN = 'turtle-mahjong-style';
   const load = k => { try { return localStorage.getItem(k); } catch { return null; } };
   const store = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
   const valid = s => s && Array.isArray(s.faces) && s.faces.length === N && Array.isArray(s.present) && s.present.length === N;
@@ -149,10 +147,11 @@
       el.classList.toggle('blocked', on && !free.has(i));
       el.classList.toggle('sel', sel === i);
       el.classList.toggle('hint', hint.includes(i));
-      if (el._f !== f) {
-        el.querySelector('use').setAttribute('href', '#k-' + f);
+      const ref = '#' + theme.id + '-k-' + f;
+      if (el._ref !== ref) {
+        el.querySelector('use').setAttribute('href', ref);
         el.setAttribute('aria-label', nameOf(f));
-        el._f = f;
+        el._ref = ref;
       }
     });
     const pairs = countPairs();
@@ -355,21 +354,49 @@
     } else newDeal();
   }
 
-  // The faces are inlined rather than referenced as assets/tiles.svg#k-…, so that
-  // they pick up the page's colour tokens and its web font.
-  fetch('assets/tiles.svg')
-    .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
-    .then(svg => {
+  /* ---------- Styles ---------- */
+  function useTheme(id) {
+    theme = THEMES.find(t => t.id === id) || THEMES[0];
+    document.documentElement.dataset.skin = theme.id;
+    store(SKIN, theme.id);
+    document.querySelectorAll('.skin').forEach(b => b.setAttribute('aria-checked', b.dataset.id === theme.id));
+    $('#flowerRule').textContent = `Any ${theme.flowers.group} matches any ${theme.flowers.group}`;
+    $('#seasonRule').textContent = `any ${theme.seasons.group} matches any ${theme.seasons.group}`;
+    if (S) render();
+  }
+  function buildPicker() {
+    const row = $('#skins');
+    THEMES.forEach(t => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'skin'; b.dataset.id = t.id;
+      b.setAttribute('role', 'radio');
+      b.title = t.name;
+      b.innerHTML = `<svg viewBox="0 0 40 53" aria-hidden="true"><use href="#${t.id}-k-${t.preview}"></use></svg><span></span>`;
+      b.querySelector('span').textContent = t.name;
+      b.onclick = () => useTheme(t.id);
+      row.appendChild(b);
+    });
+  }
+
+  // The faces are inlined rather than referenced as assets/themes/<style>.svg#…,
+  // so that they pick up the page's colour tokens and its web fonts. All styles
+  // load up front so switching is instant.
+  const get = (url, as) => fetch(url).then(r => { if (!r.ok) throw new Error(url + ': ' + r.status); return r[as](); });
+  get('assets/themes/themes.json', 'json')
+    .then(list => Promise.all(list.map(t => get(`assets/themes/${t.id}.svg`, 'text'))).then(svgs => {
       const holder = document.createElement('div');
       holder.className = 'sprite';
-      holder.innerHTML = svg;
+      holder.innerHTML = svgs.join('');
       document.body.prepend(holder);
+      THEMES = list;
+      buildPicker();
+      useTheme(load(SKIN));
       start();
-    })
+    }))
     .catch(() => {
       S = fresh(1);
       notice('Tiles did not load',
-        'The tile pictures in assets/tiles.svg could not be fetched. If you opened index.html as a file, serve the folder instead, for example with python3 -m http.server.',
+        'The tile pictures in assets/themes could not be fetched. If you opened index.html as a file, serve the folder instead, for example with python3 -m http.server.',
         []);
     });
 })();

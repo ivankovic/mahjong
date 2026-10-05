@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Turtle Mahjong</title>
-<meta name="description" content="Mahjong solitaire on the classic 144-tile turtle layout. Every deal can be cleared.">
+<meta name="description" content="Mahjong solitaire on the classic 144-tile turtle layout, with dog, chameleon, coral reef and Halloween tile sets. Every deal can be cleared.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 53'%3E%3Crect x='1' y='1' width='38' height='51' rx='6' fill='%231c7455'/%3E%3Crect x='1' y='1' width='34' height='47' rx='6' fill='%23f8f4e8'/%3E%3Ctext x='18' y='26' text-anchor='middle' dominant-baseline='central' font-family='serif' font-weight='900' font-size='30' fill='%23c2291e'%3E%E4%B8%AD%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Shippori+Mincho+B1:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Creepster&family=Fredoka:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=Shippori+Mincho+B1:wght@700;800&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap&text=一二三四五六七八九萬東南西北中發梅蘭菊竹春夏秋冬龜">
 <link rel="stylesheet" href="src/style.css">
 </head>
@@ -37,6 +37,8 @@
     </div>
   </header>
 
+  <div class="skins" id="skins" role="radiogroup" aria-label="Tile style"></div>
+
   <main class="board-wrap" id="wrap">
     <div class="board shade-on" id="board" aria-label="Mahjong solitaire board"></div>
     <div class="notice" id="notice" hidden>
@@ -48,7 +50,7 @@
     </div>
   </main>
 
-  <p class="rules">Clear the board two tiles at a time. Pick two free tiles with the same face. A tile is free when nothing rests on it and its left or right side is open. Any flower matches any flower, and any season matches any season. Every deal can be cleared.</p>
+  <p class="rules">Clear the board two tiles at a time. Pick two free tiles with the same picture. A tile is free when nothing rests on it and its left or right side is open. <span id="flowerRule">Any flower matches any flower</span>, and <span id="seasonRule">any season matches any season</span>. Every deal can be cleared.</p>
 </div>
 
 

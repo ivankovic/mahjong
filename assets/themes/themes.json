@@ -1,0 +1,187 @@
+[
+  {
+    "id": "classic",
+    "name": "Classic",
+    "preview": "gR",
+    "suits": {
+      "c": "characters",
+      "b": "bamboo",
+      "d": "dots"
+    },
+    "honours": [
+      "East wind",
+      "South wind",
+      "West wind",
+      "North wind",
+      "Red dragon",
+      "Green dragon",
+      "White dragon"
+    ],
+    "flowers": {
+      "group": "flower",
+      "items": [
+        "Plum",
+        "Orchid",
+        "Chrysanthemum",
+        "Bamboo"
+      ]
+    },
+    "seasons": {
+      "group": "season",
+      "items": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ]
+    }
+  },
+  {
+    "id": "dogs",
+    "name": "Dog Park",
+    "preview": "wS",
+    "suits": {
+      "c": "bones",
+      "b": "paw prints",
+      "d": "tennis balls"
+    },
+    "honours": [
+      "Dalmatian",
+      "Golden retriever",
+      "Pug",
+      "Husky",
+      "Doghouse",
+      "Food bowl",
+      "Fire hydrant"
+    ],
+    "flowers": {
+      "group": "toy",
+      "items": [
+        "Frisbee",
+        "Rope toy",
+        "Rubber duck",
+        "Stick"
+      ]
+    },
+    "seasons": {
+      "group": "weather tile",
+      "items": [
+        "Sunshine",
+        "Rain",
+        "Autumn leaf",
+        "Snowflake"
+      ]
+    }
+  },
+  {
+    "id": "chameleons",
+    "name": "Chameleon Jungle",
+    "preview": "wS",
+    "suits": {
+      "c": "leaves",
+      "b": "ladybirds",
+      "d": "curly tails"
+    },
+    "honours": [
+      "Green chameleon",
+      "Orange chameleon",
+      "Blue chameleon",
+      "Pink chameleon",
+      "Butterfly",
+      "Mushroom",
+      "Rainbow"
+    ],
+    "flowers": {
+      "group": "flower",
+      "items": [
+        "Red hibiscus",
+        "Purple orchid",
+        "Sunflower",
+        "Peach blossom"
+      ]
+    },
+    "seasons": {
+      "group": "sky tile",
+      "items": [
+        "Sun",
+        "Rain cloud",
+        "Moon",
+        "Star"
+      ]
+    }
+  },
+  {
+    "id": "reef",
+    "name": "Coral Reef",
+    "preview": "wE",
+    "suits": {
+      "c": "fish",
+      "b": "shells",
+      "d": "starfish"
+    },
+    "honours": [
+      "Octopus",
+      "Sea turtle",
+      "Crab",
+      "Jellyfish",
+      "Whale",
+      "Shark",
+      "Pufferfish"
+    ],
+    "flowers": {
+      "group": "sea plant",
+      "items": [
+        "Pink coral",
+        "Seaweed",
+        "Sea anemone",
+        "Fan coral"
+      ]
+    },
+    "seasons": {
+      "group": "treasure",
+      "items": [
+        "Treasure chest",
+        "Anchor",
+        "Crown",
+        "Pearl"
+      ]
+    }
+  },
+  {
+    "id": "halloween",
+    "name": "Haunted Night",
+    "preview": "c1",
+    "suits": {
+      "c": "pumpkins",
+      "b": "bats",
+      "d": "candy corns"
+    },
+    "honours": [
+      "Ghost",
+      "Black cat",
+      "Skull",
+      "Monster",
+      "Cauldron",
+      "Spider",
+      "Witch hat"
+    ],
+    "flowers": {
+      "group": "treat",
+      "items": [
+        "Lollipop",
+        "Wrapped sweet",
+        "Chocolate bar",
+        "Cupcake"
+      ]
+    },
+    "seasons": {
+      "group": "night tile",
+      "items": [
+        "Moon",
+        "Spider web",
+        "Broom",
+        "Candle"
+      ]
+    }
+  }
+]

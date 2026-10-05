@@ -10,6 +10,7 @@
   --shade: rgba(22, 44, 35, .32); --sel: #ffe59c; --hint: #1c5fc4; --tile-shadow: rgba(18, 40, 30, .38);
   --bone: #f8f4e8; --bone-edge: #e0d6bf; --jade: #1c7455; --jade-deep: #114d38;
   --t-ink: #1b1b1b; --t-red: #c2291e; --t-green: #1b7643; --t-blue: #20509b; --t-plum: #a02f68; --t-teal: #136d79;
+  --on-jade: #fff; --display-weight: 800;
   --f-display: "Shippori Mincho B1", "Songti SC", Georgia, serif;
   --f-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-glyph: "Noto Serif TC", "Songti TC", "PMingLiU", "MingLiU", serif;
@@ -57,7 +58,7 @@ body {
   background: var(--accent); color: var(--seal-ink); border-radius: 4px;
   font: 900 1.45rem/1 var(--f-glyph); transform: rotate(-4deg);
 }
-h1 { margin: 0; font: 800 clamp(1.3rem, 2.3vw, 1.75rem)/1.05 var(--f-display); letter-spacing: .01em; text-wrap: balance; }
+h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 var(--f-display); letter-spacing: .01em; text-wrap: balance; }
 .deal { margin: 2px 0 0; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .stats { display: flex; gap: 22px; margin: 0; }
@@ -74,9 +75,9 @@ h1 { margin: 0; font: 800 clamp(1.3rem, 2.3vw, 1.75rem)/1.05 var(--f-display); l
 .btn:hover { border-color: var(--ink); }
 .btn:focus-visible, .toggle input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .btn:disabled { opacity: .45; cursor: default; border-color: var(--btn-line); }
-.btn.primary { background: var(--jade); border-color: var(--jade-deep); color: #fff; }
+.btn.primary { background: var(--jade); border-color: var(--jade-deep); color: var(--on-jade); }
 .btn kbd { font: 500 .7rem var(--f-ui); color: var(--muted); margin-left: .35rem; }
-.btn.primary kbd { color: rgba(255, 255, 255, .7); }
+.btn.primary kbd { color: inherit; opacity: .7; }
 .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: .82rem; color: var(--muted); margin-left: 6px; cursor: pointer; }
 .toggle input { accent-color: var(--jade); margin: 0; }
 
@@ -125,7 +126,7 @@ h1 { margin: 0; font: 800 clamp(1.3rem, 2.3vw, 1.75rem)/1.05 var(--f-display); l
   padding: 20px 22px; box-shadow: 0 18px 50px var(--tile-shadow);
   display: flex; flex-direction: column; gap: 10px;
 }
-.notice h2 { margin: 0; font: 800 1.45rem/1.15 var(--f-display); text-wrap: balance; }
+.notice h2 { margin: 0; font: var(--display-weight) 1.45rem/1.15 var(--f-display); text-wrap: balance; }
 .notice p { margin: 0; line-height: 1.5; color: var(--muted); font-variant-numeric: tabular-nums; }
 .notice .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 
@@ -136,9 +137,62 @@ h1 { margin: 0; font: 800 clamp(1.3rem, 2.3vw, 1.75rem)/1.05 var(--f-display); l
   .stats { gap: 16px; }
   .btn { padding: .5rem .62rem; }
   .btn kbd { display: none; }
+  .skin { padding: 4px; }
+  .skin span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 @media (prefers-reduced-motion: reduce) {
   .tile, .tile.out { transition: none; }
   .tile.shake { animation: none; }
   .tile.hint .top { animation: none; background: var(--sel); box-shadow: inset 0 0 0 calc(var(--ux) * .17) var(--hint); }
 }
+
+/* Style picker */
+.skins { display: flex; flex-wrap: wrap; gap: 8px; }
+.skin {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  font: 600 .9rem/1 var(--f-ui); color: var(--ink);
+  background: var(--btn); border: 2px solid var(--btn-line); border-radius: 999px;
+  padding: 4px 14px 4px 5px;
+}
+.skin svg { width: 26px; height: 34px; background: #fbf7ec; border-radius: 4px; box-shadow: 1px 1px 0 rgba(0, 0, 0, .2); }
+.skin:hover { border-color: var(--ink); }
+.skin[aria-checked="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.skin:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Styles. Each is one look whatever the system theme, so every token is set
+   here, and these come after the dark-mode blocks so they win over them. */
+:root[data-skin="dogs"], :root[data-skin="chameleons"], :root[data-skin="reef"], :root[data-skin="halloween"] {
+  --f-display: "Fredoka", "Trebuchet MS", sans-serif;
+  --f-ui: "Fredoka", "Trebuchet MS", sans-serif;
+  --display-weight: 700;
+}
+:root[data-skin="dogs"] {
+  --table: #b9dd98; --felt: #d3edb9; --ink: #3b2a1d; --muted: #66503a; --accent: #d9481f;
+  --panel: #fffaf0; --btn: #fffdf6; --btn-line: #c6ae86; --seal-ink: #fff;
+  --shade: rgba(70, 45, 20, .32); --sel: #ffe08a; --hint: #2f7de1; --tile-shadow: rgba(50, 70, 20, .38);
+  --bone: #fffaf0; --bone-edge: #ead9b8; --jade: #d9483b; --jade-deep: #a8322a; --on-jade: #fff;
+  color-scheme: light;
+}
+:root[data-skin="chameleons"] {
+  --table: #1d5a37; --felt: #2e7d4b; --ink: #effbe8; --muted: #b9dcb1; --accent: #ff9a3c;
+  --panel: #174a2d; --btn: #1b5233; --btn-line: #3f8a5a; --seal-ink: #1a2e1a;
+  --shade: rgba(0, 0, 0, .38); --sel: #fff176; --hint: #40c4ff; --tile-shadow: rgba(0, 0, 0, .5);
+  --bone: #fbf8ea; --bone-edge: #d9d2b0; --jade: #8bc34a; --jade-deep: #5a8f24; --on-jade: #15300f;
+  color-scheme: dark;
+}
+:root[data-skin="reef"] {
+  --table: #0d5888; --felt: #1a80b5; --ink: #e9f8ff; --muted: #acd7ef; --accent: #ff8a7a;
+  --panel: #0b4870; --btn: #0e5d8d; --btn-line: #3a8fc0; --seal-ink: #062a40;
+  --shade: rgba(0, 20, 40, .40); --sel: #ffe48a; --hint: #ff4f8b; --tile-shadow: rgba(0, 10, 30, .55);
+  --bone: #fdf6e3; --bone-edge: #e6d3a8; --jade: #26c6da; --jade-deep: #00838f; --on-jade: #04323a;
+  color-scheme: dark;
+}
+:root[data-skin="halloween"] {
+  --table: #1c1230; --felt: #33205a; --ink: #f6efff; --muted: #c6b5e3; --accent: #ff9124;
+  --panel: #24173d; --btn: #2c1c4a; --btn-line: #57427e; --seal-ink: #1c1230;
+  --shade: rgba(0, 0, 0, .45); --sel: #ffd27a; --hint: #7cff5a; --tile-shadow: rgba(0, 0, 0, .6);
+  --bone: #f3efe6; --bone-edge: #cfc6b4; --jade: #ff8f1f; --jade-deep: #c45f00; --on-jade: #1c1230;
+  --f-display: "Creepster", "Fredoka", fantasy; --display-weight: 400;
+  color-scheme: dark;
+}
+:root[data-skin="halloween"] h1 { letter-spacing: .04em; }
