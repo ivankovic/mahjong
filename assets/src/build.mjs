@@ -459,7 +459,7 @@ function halloween() {
 
   return {
     id: 'halloween', name: 'Haunted Night', preview: 'c1',
-    fx: { bat, pumpkin },
+    fx: { bat, pumpkin, web },
     suits: { c: { name: 'pumpkins', pic: pumpkin, colour: '#e65100' }, b: { name: 'bats', pic: bat, colour: '#4a2a6a' }, d: { name: 'candy corns', pic: corn, colour: '#b45309' } },
     honours: [
       { name: 'Ghost', pic: ghost }, { name: 'Black cat', pic: cat }, { name: 'Skull', pic: skull }, { name: 'Monster', pic: monster },
@@ -498,6 +498,7 @@ const classicFx = {
     P('M50 20 V80 M34 24 Q24 50 34 76 M66 24 Q76 50 66 76', line('#8b1a1a', 2.5)) +
     R(38, 78, 24, 8, { rx: 2, fill: '#d4a017' }) + P('M50 86 V98 M45 88 V97 M55 88 V97', line('#d4a017', 3)),
   spark: P(starPath(50, 50, 46, 12, 4), { fill: '#f2c94c' }),
+  cloud: outlined(o => C(30, 58, 18, o) + C(52, 42, 24, o) + C(73, 56, 18, o) + R(18, 56, 66, 20, { rx: 10, ...o }), '#ffffff', '#8fa6bd', 3),
 };
 writeSprite('classic', classicSet(), classicFx);
 manifest.push({

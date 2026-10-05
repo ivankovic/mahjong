@@ -143,6 +143,55 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
 @keyframes party-sway { from { transform: translateX(-12%) rotate(-8deg); } to { transform: translateX(12%) rotate(8deg); } }
 @keyframes party-wiggle { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
 
+/* Surprises */
+.toast {
+  position: absolute; z-index: 8500; top: 8px; left: 50%; transform: translateX(-50%);
+  max-width: min(30rem, calc(100% - 32px)); padding: 10px 16px; border-radius: 12px;
+  background: var(--panel); color: var(--ink); border: 2px solid var(--accent);
+  font: 600 1rem/1.35 var(--f-ui); text-align: center; box-shadow: 0 10px 30px var(--tile-shadow);
+  pointer-events: none;
+  animation: toast-in .35s cubic-bezier(.3, 1.5, .5, 1);
+}
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, -30%) scale(.9); } }
+.tile.golden { box-shadow: 0 0 calc(var(--ux) * .6) calc(var(--ux) * .15) #ffd54f, calc(var(--ux) * .1) calc(var(--ux) * .16) calc(var(--ux) * .32) var(--tile-shadow); }
+.tile.golden .top::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 236, 150, .8) 45%, transparent 60%) 0 0 / 250% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+:root[data-skin="chameleons"] .tile.golden .top::before {
+  background-image: linear-gradient(115deg, transparent 22%, rgba(255, 60, 60, .45), rgba(255, 210, 0, .45), rgba(40, 200, 90, .45), rgba(40, 130, 255, .45), rgba(190, 60, 255, .45), transparent 78%);
+}
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+.cover {
+  position: absolute; left: 0; top: 0; right: var(--t); bottom: var(--t); z-index: 2;
+  border-radius: inherit; display: grid; place-items: center; padding: 8%;
+  background: var(--cover-bg, #eef3f6); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .1);
+}
+.cover svg { width: 100%; height: 100%; }
+:root[data-skin="dogs"] { --cover-bg: #ead2a8; }
+:root[data-skin="chameleons"] { --cover-bg: #b9e4a5; }
+:root[data-skin="reef"] { --cover-bg: #9fdcf3; }
+:root[data-skin="halloween"] { --cover-bg: #3a2a55; }
+.helper { position: absolute; left: 0; top: 0; z-index: 8100; pointer-events: none; }
+.helper svg { display: block; width: 100%; height: 100%; overflow: visible; animation: party-wiggle .3s ease-in-out infinite alternate; }
+
+/* How to play */
+.help-btn {
+  position: absolute; z-index: 8600; right: 4px; bottom: 4px;
+  width: 46px; height: 46px; border-radius: 50%; cursor: pointer;
+  font: 700 1.5rem/1 var(--f-display); color: var(--ink);
+  background: var(--btn); border: 2px solid var(--btn-line); box-shadow: 0 4px 14px var(--tile-shadow);
+}
+.help-btn:hover { border-color: var(--accent); }
+.help-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.notice .card.help { max-width: 30rem; max-height: calc(100% - 8px); overflow-y: auto; }
+#helpBody { display: flex; flex-direction: column; gap: 8px; }
+.help p { color: var(--ink); }
+.help b { color: var(--accent); }
+.help-group { display: flex; gap: 6px; }
+.mini-tile { width: 36px; height: 48px; background: #fbf7ec; border-radius: 5px; box-shadow: 1px 2px 0 var(--jade); }
+
 /* Notice over the board */
 .notice {
   position: absolute; z-index: 9000; inset: 0; display: grid; place-items: center; padding: 16px;

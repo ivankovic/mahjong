@@ -98,10 +98,25 @@
   }
 
   /* ---------- State ---------- */
-  let S, sel = null, hint = [], hintTimer = 0, hintCycle = 0, lastTick = 0;
+  let S, sel = null, hint = [], hintTimer = 0, hintCycle = 0, lastTick = 0, paused = false;
 
   function fresh(seed) {
-    return { seed, faces: deal(seed), present: Array(N).fill(1), history: [], elapsed: 0, started: false, over: false };
+    const faces = deal(seed);
+    return { seed, faces, present: Array(N).fill(1), history: [], elapsed: 0, started: false, over: false, event: planEvent(seed, faces) };
+  }
+
+  // At most one surprise per deal, picked from the deal number so that a
+  // restart brings the same one back. `at` is how many tiles must be cleared
+  // before it happens.
+  function planEvent(seed, faces) {
+    const rng = mulberry32(seed * 7919 + 17), r = rng();
+    if (r < .25) return null;
+    if (r < .5) {
+      const k = KINDS[rng() * KINDS.length | 0];
+      const four = shuffle(faces.map((f, i) => f === k ? i : -1).filter(i => i >= 0), rng);
+      return { type: 'golden', tiles: four.slice(0, 2), done: false };
+    }
+    return { type: r < .75 ? 'helper' : 'mischief', at: 2 * (12 + (rng() * 30 | 0)), done: false, covered: [] };
   }
   const STORE = 'turtle-mahjong-game', BEST = 'turtle-mahjong-best', SHADE = 'turtle-mahjong-shade',
     SKIN = 'turtle-mahjong-style';
@@ -148,6 +163,21 @@
       el.classList.toggle('blocked', on && !free.has(i));
       el.classList.toggle('sel', sel === i);
       el.classList.toggle('hint', hint.includes(i));
+      const ev = S.event;
+      el.classList.toggle('golden', on && !!ev && ev.type === 'golden' && !ev.done && ev.tiles.includes(i));
+      const covered = on && !!ev && ev.type === 'mischief' && ev.covered.includes(i);
+      el.classList.toggle('covered', covered);
+      if (covered) {
+        const ref = `#${theme.id}-${EVENTS.mischief[theme.id][0]}`;
+        let c = el.querySelector('.cover');
+        if (!c) {
+          c = document.createElement('span');
+          c.className = 'cover';
+          c.innerHTML = '<svg aria-hidden="true"><use width="100%" height="100%"></use></svg>';
+          el.appendChild(c);
+        }
+        c.querySelector('use').setAttribute('href', ref);
+      }
       const ref = '#' + theme.id + '-k-' + f;
       if (el._ref !== ref) {
         el.querySelector('use').setAttribute('href', ref);
@@ -292,6 +322,7 @@
     if (!S.present[i] || S.over) return;
     startClock();
     clearHint();
+    if (tiles[i].classList.contains('covered')) { uncover(i); return; }
     if (!isFree(i, S.present)) {
       const el = tiles[i];
       el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
@@ -300,16 +331,164 @@
     }
     if (sel === i) sel = null;
     else if (sel !== null && keyOf(S.faces[sel]) === keyOf(S.faces[i])) {
-      S.present[sel] = S.present[i] = 0;
-      S.history.push({ t: 'pair', a: sel, b: i });
-      leave([sel, i]);
-      sel = null;
-      render();
-      checkEnd();
+      takePair(sel, i);
       return;
     } else sel = i;
     render();
   }
+
+  function takePair(a, b) {
+    S.present[a] = S.present[b] = 0;
+    S.history.push({ t: 'pair', a, b });
+    leave([a, b]);
+    if (sel === a || sel === b) sel = null;
+    const ev = S.event;
+    const struck = ev && ev.type === 'golden' && !ev.done && (ev.tiles.includes(a) || ev.tiles.includes(b));
+    if (struck) ev.done = true;
+    render();
+    checkEnd();
+    if (S.over) return;
+    if (struck) {
+      toast(EVENTS.golden[theme.id][1]);
+      startClock();
+      hint = openGroups().flat();
+      render();
+      clearTimeout(hintTimer);
+      hintTimer = setTimeout(() => { hint = []; render(); }, 6000);
+    }
+    surprise();
+  }
+
+  /* ---------- Surprises ---------- */
+  // golden: [what the toast says at the start, what it says on matching one].
+  // helper: [who comes, what the toast says]. mischief: [what covers the tiles,
+  // what the toast says]. Pictures are the style's own fx-* or k-* symbols.
+  const EVENTS = {
+    golden: {
+      classic: ['Two lucky tiles are glowing. Find them!', 'Lucky! Every pair you can take lights up.'],
+      dogs: ['Two tiles are wearing golden collars. Find them!', 'Good dog! Every pair you can take lights up.'],
+      chameleons: ['Two tiles are shimmering like a rainbow. Find them!', 'Rainbow power! Every pair you can take lights up.'],
+      reef: ['Two tiles are hiding pearls. Find the shiny ones!', 'Pearls! Every pair you can take lights up.'],
+      halloween: ['Two tiles are under a magic spell. Find them!', 'Abracadabra! Every pair you can take lights up.'],
+    },
+    helper: {
+      classic: ['fx-lantern', 'A lantern floated by and carried a pair away!'],
+      dogs: ['k-wS', 'Goldie ran in and fetched a pair for you!'],
+      chameleons: ['k-wE', 'Zap! A chameleon caught a pair with its tongue!'],
+      reef: ['k-wE', 'An octopus swam by and grabbed a pair!'],
+      halloween: ['k-wE', 'Boo! A ghost made a pair vanish!'],
+    },
+    mischief: {
+      classic: ['fx-cloud', 'A gust of wind blew clouds over some tiles. Tap them to clear the sky!'],
+      dogs: ['fx-paw', 'Oops! A muddy puppy ran over some tiles. Tap them to wipe them clean!'],
+      chameleons: ['fx-leaf', 'Leaves fell on some tiles. Tap them to brush them off!'],
+      reef: ['fx-bubble', 'Bubbles covered some tiles. Tap them to pop them!'],
+      halloween: ['fx-web', 'A spider spun webs over some tiles. Tap them to sweep them away!'],
+    },
+  };
+
+  let toastTimer = 0;
+  function toast(text, ms = 4200) {
+    const t = $('#toast');
+    t.textContent = text;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, ms);
+  }
+
+  // Called after every pair: starts a helper or mischief once enough is cleared.
+  function surprise() {
+    const ev = S.event;
+    if (!ev || ev.done || ev.running || ev.type === 'golden' || N - leftCount() < ev.at) return;
+    if (ev.type === 'helper') helper();
+    else mischief();
+  }
+
+  function helper() {
+    const ev = S.event, groups = openGroups().map(g => g.filter(i => !ev.covered.includes(i))).filter(g => g.length > 1);
+    if (!groups.length) return; // try again after the next pair
+    const [a, b] = groups[Math.random() * groups.length | 0];
+    const [who, text] = EVENTS.helper[theme.id];
+    ev.running = true;
+    const layer = $('#party'), box = layer.getBoundingClientRect();
+    const centre = i => { const r = tiles[i].getBoundingClientRect(); return [r.left + r.width / 2 - box.left, r.top + r.height / 2 - box.top]; };
+    const [ax, ay] = centre(a), [bx, by] = centre(b);
+    const ux = parseFloat(board.style.getPropertyValue('--ux')) || 20, s = 5 * ux;
+    const go = () => {
+      ev.running = false;
+      ev.done = true;
+      if (S.present[a] && S.present[b] && isFree(a, S.present) && isFree(b, S.present)) takePair(a, b);
+    };
+    toast(text);
+    if (calm.matches) { go(); return; }
+    const p = document.createElement('span');
+    p.className = 'helper';
+    p.style.cssText = `width:${s}px;height:${s}px`;
+    p.innerHTML = `<svg aria-hidden="true"><use href="#${theme.id}-${who}" width="100%" height="100%"></use></svg>`;
+    layer.appendChild(p);
+    const at = (x, y) => `translate(${Math.round(x - s / 2)}px, ${Math.round(y - s / 2)}px)`;
+    const fromLeft = (ax + bx) / 2 > box.width / 2;
+    const edge = fromLeft ? -s : box.width + s;
+    const run = p.animate([
+      { transform: at(edge, ay) },
+      { transform: at(ax, ay), offset: .35 },
+      { transform: at(bx, by), offset: .6 },
+      { transform: at(fromLeft ? box.width + s : -s, by - box.height * .2) },
+    ], { duration: 2600, easing: 'ease-in-out' });
+    setTimeout(go, 2600 * .6);
+    run.onfinish = () => p.remove();
+  }
+
+  function mischief() {
+    const ev = S.event;
+    const pool = shuffle(freeTiles(), Math.random);
+    if (pool.length < 2) return;
+    ev.covered = pool.slice(0, Math.min(4, pool.length));
+    ev.done = true;
+    if (ev.covered.includes(sel)) sel = null;
+    toast(EVENTS.mischief[theme.id][1]);
+    render();
+    if (!calm.matches) ev.covered.forEach(i => tiles[i].querySelector('.cover')
+      ?.animate([{ transform: 'scale(.2) rotate(-40deg)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 450, easing: 'cubic-bezier(.3,1.6,.5,1)' }));
+  }
+
+  function uncover(i) {
+    const ev = S.event;
+    ev.covered = ev.covered.filter(j => j !== i);
+    const c = tiles[i].querySelector('.cover');
+    tiles[i].classList.remove('covered');
+    if (c && !calm.matches) {
+      c.animate([{ transform: 'none', opacity: 1 }, { transform: 'scale(1.6) rotate(25deg)', opacity: 0 }], { duration: 350, easing: 'ease-out' })
+        .onfinish = () => render();
+    } else render();
+    save();
+  }
+
+  /* ---------- How to play ---------- */
+  function openHelp() {
+    const mini = f => `<svg class="mini-tile" viewBox="0 0 40 53" aria-hidden="true"><use href="#${theme.id}-k-${f}"></use></svg>`;
+    const group = (g, key) => `<div class="help-group">${[1, 2, 3, 4].map(n => mini(key + n)).join('')}</div>` +
+      `<p>Any ${g.group} goes with any other ${g.group}.</p>`;
+    $('#helpBody').innerHTML =
+      `<p>Find two tiles with the same picture and tap them both. They disappear! Clear every tile to win.</p>` +
+      `<div class="help-group">${mini('c3')}${mini('c3')}</div>` +
+      `<p>You can only take a <b>free</b> tile: no tile lies on top of it, and its left or right side is open. ` +
+      `With “Shade blocked tiles” on, the tiles you can’t take yet are darker.</p>` +
+      group(theme.flowers, 'f') + group(theme.seasons, 's') +
+      `<p>Stuck? <b>Hint</b> shows a pair, <b>Undo</b> takes back a move, and <b>Shuffle</b> mixes up the tiles that are left.</p>` +
+      `<p>Watch out for surprises! Some games have glowing tiles, a helper who takes a pair for you, or a bit of mischief.</p>`;
+    $('#help').hidden = false;
+    paused = true;
+    $('#helpClose').focus();
+  }
+  function closeHelp() {
+    $('#help').hidden = true;
+    paused = false;
+    lastTick = performance.now();
+  }
+  $('#helpBtn').onclick = openHelp;
+  $('#helpClose').onclick = closeHelp;
+  $('#help').addEventListener('click', e => { if (e.target.id === 'help') closeHelp(); });
 
   function undo() {
     const h = S.history.pop();
@@ -369,6 +548,8 @@
     $('#party').replaceChildren();
     S = fresh(seed);
     render();
+    $('#toast').hidden = true;
+    if (S.event && S.event.type === 'golden') setTimeout(() => toast(EVENTS.golden[theme.id][0]), 500);
   }
   const newDeal = () => begin(1 + Math.floor(Math.random() * 99999));
   const restart = () => begin(S.seed);
@@ -394,6 +575,8 @@
   document.addEventListener('keydown', e => {
     if (!S || e.target.closest('input, textarea')) return;
     const k = e.key.toLowerCase();
+    if (!$('#help').hidden) { if (k === 'escape') closeHelp(); return; }
+    if (k === '?') { openHelp(); return; }
     if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); return; }
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (k === 'h') showHint();
@@ -404,7 +587,7 @@
 
   setInterval(() => {
     const now = performance.now();
-    if (S && S.started && !S.over && !document.hidden) {
+    if (S && S.started && !S.over && !paused && !document.hidden) {
       S.elapsed += now - lastTick;
       $('#time').textContent = fmt(S.elapsed);
     }
@@ -431,6 +614,7 @@
     try { saved = JSON.parse(load(STORE)); } catch { saved = null; }
     if (valid(saved)) {
       S = saved;
+      if (S.event) S.event.running = false;
       render();
       if (!S.over && leftCount() > 0 && countPairs() === 0) checkEnd();
     } else newDeal();

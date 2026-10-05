@@ -5,7 +5,8 @@
     "preview": "gR",
     "fx": [
       "lantern",
-      "spark"
+      "spark",
+      "cloud"
     ],
     "suits": {
       "c": "characters",
@@ -169,7 +170,8 @@
     "preview": "c1",
     "fx": [
       "bat",
-      "pumpkin"
+      "pumpkin",
+      "web"
     ],
     "suits": {
       "c": "pumpkins",

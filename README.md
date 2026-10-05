@@ -18,6 +18,12 @@ Clearing the whole board starts a celebration in the same style: lanterns
 and sparks, leaping dogs under a rain of bones, leaping chameleons and
 butterflies, fish and a whale swimming past, or a swarm of bats.
 
+Most deals have one surprise, picked from the deal number, so a restart
+brings the same one back. Two tiles may glow (match one and every pair you
+can take lights up), a helper may come and take a pair for you, or a bit of
+mischief may cover a few tiles until they are tapped. The ? button in the
+corner of the board explains the rules with the current style's tiles.
+
 Pick two free tiles with the same face to clear them. A tile is free when
 nothing rests on it and its left or right side is open. Any flower matches
 any flower, and any season matches any season.
@@ -37,6 +43,7 @@ Play it at <https://ivankovic.github.io/mahjong/>.
 | U, Ctrl+Z      | Undo the last pair or shuffle               |
 | S              | Shuffle the remaining tiles                 |
 | Esc            | Clear the selection                         |
+| ?              | How to play                                 |
 
 The current game, your best time and the "shade blocked tiles" setting are
 kept in the browser's local storage.
