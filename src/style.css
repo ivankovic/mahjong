@@ -144,6 +144,8 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
 @keyframes party-wiggle { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
 
 /* Surprises */
+.tile.out.queued { visibility: visible; opacity: 1; transform: none; transition: none; }
+.tile.out.queued .top { background: var(--sel); box-shadow: inset 0 0 0 calc(var(--ux) * .17) var(--hint); }
 .toast {
   position: absolute; z-index: 8500; top: 8px; left: 50%; transform: translateX(-50%);
   max-width: min(30rem, calc(100% - 32px)); padding: 10px 16px; border-radius: 12px;
@@ -268,6 +270,16 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
   .tile.shake { animation: none; }
   .tile.hint .top { animation: none; background: var(--sel); box-shadow: inset 0 0 0 calc(var(--ux) * .17) var(--hint); }
 }
+
+/* Language switch */
+.langs { display: inline-flex; border: 1px solid var(--btn-line); border-radius: 6px; overflow: hidden; margin-left: 4px; }
+.lang {
+  font: 600 .78rem/1 var(--f-ui); letter-spacing: .05em; color: var(--muted);
+  background: var(--btn); border: 0; padding: .5rem .55rem; cursor: pointer;
+}
+.lang + .lang { border-left: 1px solid var(--btn-line); }
+.lang[aria-checked="true"] { background: var(--jade); color: var(--on-jade); }
+.lang:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
 /* Style picker */
 .skins { display: flex; flex-wrap: wrap; gap: 8px; }

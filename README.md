@@ -1,6 +1,7 @@
 # Turtle Mahjong
 
-Mahjong solitaire on the classic 144-tile turtle layout, in the browser.
+Mahjong solitaire on the classic 144-tile turtle layout, in the browser, in
+English, German and Croatian.
 
 It comes with six tile styles: Classic, and five for kids: Dog Park,
 Chameleon Jungle, Coral Reef, Haunted Night and Swiss Alps. The kids' styles keep the
@@ -20,8 +21,8 @@ butterflies, fish and a whale swimming past, a swarm of bats, or cows and
 friends leaping in the snow under rising Swiss flags.
 
 Most deals have one surprise, picked from the deal number, so a restart
-brings the same one back. Two tiles may glow (match one and every pair you
-can take lights up), a helper may come and take a pair for you, or a bit of
+brings the same one back. Two tiles may glow (match one and PAIR UP clears
+every pair that is open at that moment), a helper may come and take a pair for you, or a bit of
 mischief may cover a few tiles until they are tapped. The ? button in the
 corner of the board explains the rules with the current style's tiles.
 
@@ -65,6 +66,8 @@ Then open <http://localhost:8000/>.
 - `index.html`: the page
 - `src/game.js`: layout, dealing, rules and the board
 - `src/style.css`: the table and the tiles' bodies
+- `src/i18n.js`: every word the game shows, in each language (German uses
+  Swiss spelling, "ss" for "ß")
 - `assets/themes/<style>.svg`: each style's 42 tile faces, one `<symbol>` each
 - `assets/themes/themes.json`: the styles, and the names of their tiles
 - `assets/src/build.mjs`: draws all of the above

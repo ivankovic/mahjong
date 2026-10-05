@@ -18,22 +18,23 @@
     <div class="brand">
       <div class="seal" aria-hidden="true">龜</div>
       <div>
-        <h1>Turtle Mahjong</h1>
+        <h1 data-i18n="title">Turtle Mahjong</h1>
         <p class="deal" id="deal">Deal</p>
       </div>
     </div>
     <dl class="stats">
-      <div><dt>Tiles left</dt><dd id="left">144</dd></div>
-      <div><dt>Open pairs</dt><dd id="pairs">0</dd></div>
-      <div><dt>Time</dt><dd id="time">0:00</dd></div>
+      <div><dt data-i18n="tilesLeft">Tiles left</dt><dd id="left">144</dd></div>
+      <div><dt data-i18n="openPairs">Open pairs</dt><dd id="pairs">0</dd></div>
+      <div><dt data-i18n="time">Time</dt><dd id="time">0:00</dd></div>
     </dl>
     <div class="actions">
-      <button class="btn" id="hintBtn" type="button">Hint<kbd>H</kbd></button>
-      <button class="btn" id="undoBtn" type="button">Undo<kbd>U</kbd></button>
-      <button class="btn" id="shuffleBtn" type="button">Shuffle<kbd>S</kbd></button>
-      <button class="btn" id="restartBtn" type="button">Restart</button>
-      <button class="btn primary" id="newBtn" type="button">New deal</button>
-      <label class="toggle"><input type="checkbox" id="shade" checked> Shade blocked tiles</label>
+      <button class="btn" id="hintBtn" type="button"><span data-i18n="hint">Hint</span><kbd>H</kbd></button>
+      <button class="btn" id="undoBtn" type="button"><span data-i18n="undo">Undo</span><kbd>U</kbd></button>
+      <button class="btn" id="shuffleBtn" type="button"><span data-i18n="shuffle">Shuffle</span><kbd>S</kbd></button>
+      <button class="btn" id="restartBtn" type="button" data-i18n="restart">Restart</button>
+      <button class="btn primary" id="newBtn" type="button" data-i18n="newDeal">New deal</button>
+      <label class="toggle"><input type="checkbox" id="shade" checked> <span data-i18n="shade">Shade blocked tiles</span></label>
+      <div class="langs" id="langs" role="radiogroup" aria-label="Language"></div>
     </div>
   </header>
 
@@ -46,9 +47,9 @@
     <button class="help-btn" id="helpBtn" type="button" aria-label="How to play" title="How to play">?</button>
     <div class="notice" id="help" hidden>
       <div class="card help" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
-        <h2 id="helpTitle">How to play</h2>
+        <h2 id="helpTitle" data-i18n="howTo">How to play</h2>
         <div id="helpBody"></div>
-        <div class="row"><button class="btn primary" id="helpClose" type="button">Got it</button></div>
+        <div class="row"><button class="btn primary" id="helpClose" type="button" data-i18n="gotIt">Got it</button></div>
       </div>
     </div>
     <div class="notice" id="notice" hidden>
@@ -63,6 +64,7 @@
 </div>
 
 
+<script src="src/i18n.js"></script>
 <script src="src/game.js"></script>
 </body>
 </html>

@@ -45,12 +45,18 @@
   // <symbol id="<style>-k-<face>"> each; themes.json names the styles and faces.
   const HONOURS = ['wE', 'wS', 'wW', 'wN', 'gR', 'gG', 'gW'];
   let THEMES = [], theme = null;
+  // Words come from src/i18n.js: tr() is the current language, tt() the
+  // current style's words in it.
+  const LANGS = ['en', 'de', 'hr'];
+  let lang = 'en';
+  const tr = () => I18N[lang];
+  const tt = () => tr().themes[theme.id];
   const nameOf = f => {
-    const k = f[0], v = f.slice(1);
-    if (k in theme.suits) return v + ' ' + theme.suits[k];
-    if (k === 'f') return theme.flowers.items[v - 1];
-    if (k === 's') return theme.seasons.items[v - 1];
-    return theme.honours[HONOURS.indexOf(f)];
+    const k = f[0], v = f.slice(1), w = tt();
+    if (k in w.suits) return w.suits[k] + ' ' + v;
+    if (k === 'f') return w.flowers[v - 1];
+    if (k === 's') return w.seasons[v - 1];
+    return w.honours[HONOURS.indexOf(f)];
   };
 
   /* ---------- Dealing ---------- */
@@ -119,7 +125,7 @@
     return { type: r < .75 ? 'helper' : 'mischief', at: 2 * (12 + (rng() * 30 | 0)), done: false, covered: [] };
   }
   const STORE = 'turtle-mahjong-game', BEST = 'turtle-mahjong-best', SHADE = 'turtle-mahjong-shade',
-    SKIN = 'turtle-mahjong-style';
+    SKIN = 'turtle-mahjong-style', LANG = 'turtle-mahjong-lang';
   const load = k => { try { return localStorage.getItem(k); } catch { return null; } };
   const store = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
   const valid = s => s && Array.isArray(s.faces) && s.faces.length === N && Array.isArray(s.present) && s.present.length === N;
@@ -159,7 +165,7 @@
     tiles.forEach((el, i) => {
       const on = !!S.present[i], f = S.faces[i];
       el.classList.toggle('out', !on);
-      if (on) el.classList.remove('leaving');
+      if (on) el.classList.remove('leaving', 'queued');
       el.classList.toggle('blocked', on && !free.has(i));
       el.classList.toggle('sel', sel === i);
       el.classList.toggle('hint', hint.includes(i));
@@ -168,7 +174,7 @@
       const covered = on && !!ev && ev.type === 'mischief' && ev.covered.includes(i);
       el.classList.toggle('covered', covered);
       if (covered) {
-        const ref = `#${theme.id}-${EVENTS.mischief[theme.id][0]}`;
+        const ref = `#${theme.id}-${EVENTS.mischief[theme.id]}`;
         let c = el.querySelector('.cover');
         if (!c) {
           c = document.createElement('span');
@@ -190,7 +196,7 @@
     $('#pairs').textContent = pairs;
     $('#pairs').classList.toggle('zero', pairs === 0 && leftCount() > 0);
     $('#time').textContent = fmt(S.elapsed);
-    $('#deal').textContent = 'Deal #' + S.seed;
+    $('#deal').textContent = tr().deal(S.seed);
     $('#undoBtn').disabled = !S.history.length;
     $('#hintBtn').disabled = $('#shuffleBtn').disabled = S.over || leftCount() === 0;
     save();
@@ -221,13 +227,11 @@
       const best = Number(load(BEST)) || 0;
       const isBest = !best || S.elapsed < best;
       if (isBest) store(BEST, String(S.elapsed));
-      celebrate(() => notice('Board cleared',
-        `Deal #${S.seed} in ${fmt(S.elapsed)}. ` + (isBest ? 'That is your best time.' : `Your best is ${fmt(best)}.`),
-        [['New deal', newDeal, true], ['Replay this deal', restart]]));
+      celebrate(() => notice(tr().cleared, tr().clearedBody(S.seed, fmt(S.elapsed), fmt(best), isBest),
+        [[tr().newDeal, newDeal, true], [tr().replay, restart]]));
     } else if (countPairs() === 0) {
-      notice('No pairs left',
-        `${left} tiles remain, but no two free tiles match. Shuffle the remaining tiles into a layout that can be cleared, or undo.`,
-        [['Shuffle tiles', shuffleTiles, true], ['Undo', undo], ['New deal', newDeal]]);
+      notice(tr().stuck, tr().stuckBody(left),
+        [[tr().shuffleTiles, shuffleTiles, true], [tr().undo, undo], [tr().newDeal, newDeal]]);
     }
   }
 
@@ -352,55 +356,57 @@
     checkEnd();
     if (S.over) return;
     if (struck) {
-      toast(EVENTS.golden[theme.id][1]);
-      startClock();
-      hint = openGroups().flat();
-      render();
-      clearTimeout(hintTimer);
-      hintTimer = setTimeout(() => { hint = []; render(); }, 6000);
+      toast(() => tt().golden[1]);
+      pairUp();
     }
     surprise();
   }
 
+  // PAIR UP, the golden pair's reward: every pair that is open right now
+  // clears itself, one after another. They leave the game at once, so nothing
+  // can be clicked mid-way; .queued keeps each on screen, lit up, until its turn.
+  function pairUp() {
+    const covered = S.event?.covered || [], pairs = [];
+    openGroups().forEach(g => {
+      const free = g.filter(i => !covered.includes(i));
+      for (let k = 0; k + 1 < free.length; k += 2) pairs.push([free[k], free[k + 1]]);
+    });
+    if (!pairs.length) return;
+    clearHint(); sel = null;
+    pairs.forEach(([a, b]) => { S.present[a] = S.present[b] = 0; });
+    S.history.push({ t: 'pairs', list: pairs });
+    const gap = calm.matches ? 0 : 220;
+    pairs.flat().forEach(i => tiles[i].classList.add('queued'));
+    render();
+    pairs.forEach(([a, b], k) => setTimeout(() => {
+      if (S.present[a] || S.present[b]) return; // undone meanwhile
+      tiles[a].classList.remove('queued'); tiles[b].classList.remove('queued');
+      leave([a, b]);
+    }, 300 + k * gap));
+    setTimeout(() => { checkEnd(); if (!S.over) surprise(); }, 300 + pairs.length * gap);
+  }
+
   /* ---------- Surprises ---------- */
-  // golden: [what the toast says at the start, what it says on matching one].
-  // helper: [who comes, what the toast says]. mischief: [what covers the tiles,
-  // what the toast says]. Pictures are the style's own fx-* or k-* symbols.
+  // Who comes to help, and what covers the tiles in mischief: the style's own
+  // fx-* or k-* symbols. What the toasts say is in src/i18n.js.
   const EVENTS = {
-    golden: {
-      classic: ['Two lucky tiles are glowing. Find them!', 'Lucky! Every pair you can take lights up.'],
-      dogs: ['Two tiles are wearing golden collars. Find them!', 'Good dog! Every pair you can take lights up.'],
-      chameleons: ['Two tiles are shimmering like a rainbow. Find them!', 'Rainbow power! Every pair you can take lights up.'],
-      reef: ['Two tiles are hiding pearls. Find the shiny ones!', 'Pearls! Every pair you can take lights up.'],
-      halloween: ['Two tiles are under a magic spell. Find them!', 'Abracadabra! Every pair you can take lights up.'],
-      swiss: ['Two tiles are wrapped in gold foil, like chocolate. Find them!', 'Yum! Every pair you can take lights up.'],
-    },
-    helper: {
-      classic: ['fx-lantern', 'A lantern floated by and carried a pair away!'],
-      dogs: ['k-wS', 'Goldie ran in and fetched a pair for you!'],
-      chameleons: ['k-wE', 'Zap! A chameleon caught a pair with its tongue!'],
-      reef: ['k-wE', 'An octopus swam by and grabbed a pair!'],
-      halloween: ['k-wE', 'Boo! A ghost made a pair vanish!'],
-      swiss: ['k-wS', 'A St. Bernard came to the rescue and took a pair!'],
-    },
-    mischief: {
-      classic: ['fx-cloud', 'A gust of wind blew clouds over some tiles. Tap them to clear the sky!'],
-      dogs: ['fx-paw', 'Oops! A muddy puppy ran over some tiles. Tap them to wipe them clean!'],
-      chameleons: ['fx-leaf', 'Leaves fell on some tiles. Tap them to brush them off!'],
-      reef: ['fx-bubble', 'Bubbles covered some tiles. Tap them to pop them!'],
-      halloween: ['fx-web', 'A spider spun webs over some tiles. Tap them to sweep them away!'],
-      swiss: ['fx-snow', 'Snow fell on some tiles. Tap them to brush it off!'],
-    },
+    helper: { classic: 'fx-lantern', dogs: 'k-wS', chameleons: 'k-wE', reef: 'k-wE', halloween: 'k-wE', swiss: 'k-wS' },
+    mischief: { classic: 'fx-cloud', dogs: 'fx-paw', chameleons: 'fx-leaf', reef: 'fx-bubble', halloween: 'fx-web', swiss: 'fx-snow' },
   };
 
   let toastTimer = 0;
-  function toast(text, ms = 4200) {
+  // `say` returns the text, so a toast still showing follows a change of
+  // language or style.
+  let toastSay = null;
+  function toast(say, ms = 4200) {
     const t = $('#toast');
-    t.textContent = text;
+    toastSay = say;
+    t.textContent = say();
     t.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { t.hidden = true; }, ms);
   }
+  const retoast = () => { if (toastSay && !$('#toast').hidden) $('#toast').textContent = toastSay(); };
 
   // Called after every pair: starts a helper or mischief once enough is cleared.
   function surprise() {
@@ -414,7 +420,7 @@
     const ev = S.event, groups = openGroups().map(g => g.filter(i => !ev.covered.includes(i))).filter(g => g.length > 1);
     if (!groups.length) return; // try again after the next pair
     const [a, b] = groups[Math.random() * groups.length | 0];
-    const [who, text] = EVENTS.helper[theme.id];
+    const who = EVENTS.helper[theme.id];
     ev.running = true;
     const layer = $('#party'), box = layer.getBoundingClientRect();
     const centre = i => { const r = tiles[i].getBoundingClientRect(); return [r.left + r.width / 2 - box.left, r.top + r.height / 2 - box.top]; };
@@ -425,7 +431,7 @@
       ev.done = true;
       if (S.present[a] && S.present[b] && isFree(a, S.present) && isFree(b, S.present)) takePair(a, b);
     };
-    toast(text);
+    toast(() => tt().helper);
     if (calm.matches) { go(); return; }
     const p = document.createElement('span');
     p.className = 'helper';
@@ -452,7 +458,7 @@
     ev.covered = pool.slice(0, Math.min(4, pool.length));
     ev.done = true;
     if (ev.covered.includes(sel)) sel = null;
-    toast(EVENTS.mischief[theme.id][1]);
+    toast(() => tt().mischief);
     render();
     if (!calm.matches) ev.covered.forEach(i => tiles[i].querySelector('.cover')
       ?.animate([{ transform: 'scale(.2) rotate(-40deg)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 450, easing: 'cubic-bezier(.3,1.6,.5,1)' }));
@@ -473,16 +479,11 @@
   /* ---------- How to play ---------- */
   function openHelp() {
     const mini = f => `<svg class="mini-tile" viewBox="0 0 40 53" aria-hidden="true"><use href="#${theme.id}-k-${f}"></use></svg>`;
-    const group = (g, key) => `<div class="help-group">${[1, 2, 3, 4].map(n => mini(key + n)).join('')}</div>` +
-      `<p>Any ${g.group} goes with any other ${g.group}.</p>`;
+    const group = (rule, key) => `<div class="help-group">${[1, 2, 3, 4].map(n => mini(key + n)).join('')}</div><p>${rule}</p>`;
+    const [play, free, stuck, surprises] = tr().help;
     $('#helpBody').innerHTML =
-      `<p>Find two tiles with the same picture and tap them both. They disappear! Clear every tile to win.</p>` +
-      `<div class="help-group">${mini('c3')}${mini('c3')}</div>` +
-      `<p>You can only take a <b>free</b> tile: no tile lies on top of it, and its left or right side is open. ` +
-      `With “Shade blocked tiles” on, the tiles you can’t take yet are darker.</p>` +
-      group(theme.flowers, 'f') + group(theme.seasons, 's') +
-      `<p>Stuck? <b>Hint</b> shows a pair, <b>Undo</b> takes back a move, and <b>Shuffle</b> mixes up the tiles that are left.</p>` +
-      `<p>Watch out for surprises! Some games have glowing tiles, a helper who takes a pair for you, or a bit of mischief.</p>`;
+      `<p>${play}</p><div class="help-group">${mini('c3')}${mini('c3')}</div><p>${free}</p>` +
+      group(tt().flowersRule, 'f') + group(tt().seasonsRule, 's') + `<p>${stuck}</p><p>${surprises}</p>`;
     $('#help').hidden = false;
     paused = true;
     $('#helpClose').focus();
@@ -501,6 +502,7 @@
     if (!h) return;
     clearHint(); sel = null; hideNotice();
     if (h.t === 'pair') { S.present[h.a] = S.present[h.b] = 1; }
+    else if (h.t === 'pairs') h.list.forEach(([a, b]) => { S.present[a] = S.present[b] = 1; });
     else { S.faces = h.prev; }
     S.over = false;
     render();
@@ -531,9 +533,7 @@
     clearHint(); sel = null;
     if (!out) {
       render();
-      notice('Shuffling can’t help',
-        `The ${idx.length} tiles left are stacked so that no arrangement of them can be cleared. Undo a few moves or start a new deal.`,
-        [['Undo', undo, true], ['New deal', newDeal]]);
+      notice(tr().cantShuffle, tr().cantShuffleBody(idx.length), [[tr().undo, undo, true], [tr().newDeal, newDeal]]);
       return;
     }
     startClock();
@@ -546,7 +546,7 @@
   const inProgress = () => S.history.length > 0 && !S.over;
   function confirmThen(title, fn) {
     if (!inProgress()) { fn(); return; }
-    notice(title, `You have cleared ${N - leftCount()} of ${N} tiles. This game will be lost.`, [[title, fn, true], ['Keep playing', () => {}]]);
+    notice(title, tr().confirmBody(N - leftCount(), N), [[title, fn, true], [tr().keepPlaying, () => {}]]);
   }
   function begin(seed) {
     clearHint(); sel = null; hintCycle = 0; hideNotice();
@@ -555,7 +555,7 @@
     S = fresh(seed);
     render();
     $('#toast').hidden = true;
-    if (S.event && S.event.type === 'golden') setTimeout(() => toast(EVENTS.golden[theme.id][0]), 500);
+    if (S.event && S.event.type === 'golden') setTimeout(() => toast(() => tt().golden[0]), 500);
   }
   const newDeal = () => begin(1 + Math.floor(Math.random() * 99999));
   const restart = () => begin(S.seed);
@@ -570,8 +570,8 @@
   $('#hintBtn').onclick = whenDealt(showHint);
   $('#undoBtn').onclick = whenDealt(undo);
   $('#shuffleBtn').onclick = whenDealt(shuffleTiles);
-  $('#restartBtn').onclick = whenDealt(() => confirmThen('Restart deal', restart));
-  $('#newBtn').onclick = whenDealt(() => confirmThen('New deal', newDeal));
+  $('#restartBtn').onclick = whenDealt(() => confirmThen(tr().restart, restart));
+  $('#newBtn').onclick = whenDealt(() => confirmThen(tr().newDeal, newDeal));
 
   const shade = $('#shade');
   shade.checked = load(SHADE) !== '0';
@@ -626,11 +626,63 @@
     } else newDeal();
   }
 
+  /* ---------- Language ---------- */
+  function useLang(code) {
+    lang = LANGS.includes(code) ? code : 'en';
+    store(LANG, lang);
+    document.documentElement.lang = lang;
+    document.title = tr().title;
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = tr()[el.dataset.i18n]; });
+    $('#helpBtn').setAttribute('aria-label', tr().howTo);
+    $('#helpBtn').title = tr().howTo;
+    $('#skins').setAttribute('aria-label', tr().tileStyle);
+    $('#langs').setAttribute('aria-label', tr().language);
+    board.setAttribute('aria-label', tr().board);
+    document.querySelectorAll('.lang').forEach(b => b.setAttribute('aria-checked', b.dataset.lang === lang));
+    if (theme) { labelSkins(); retoast(); }
+    if (S) {
+      tiles.forEach(el => { el._ref = null; });
+      render();
+    }
+  }
+  function buildLangs() {
+    LANGS.forEach(code => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'lang'; b.dataset.lang = code;
+      b.setAttribute('role', 'radio');
+      b.textContent = code.toUpperCase();
+      b.title = I18N[code].langName;
+      b.onclick = () => useLang(code);
+      $('#langs').appendChild(b);
+    });
+  }
+  // A first visit gets the browser's language when the game speaks it.
+  const firstLang = () => {
+    const saved = load(LANG);
+    if (saved) return saved;
+    for (const l of navigator.languages || [navigator.language || '']) {
+      const c = l.slice(0, 2).toLowerCase();
+      if (LANGS.includes(c)) return c;
+      if (['bs', 'sr', 'sh'].includes(c)) return 'hr';
+    }
+    return 'en';
+  };
+  buildLangs();
+  useLang(firstLang());
+
   /* ---------- Styles ---------- */
+  function labelSkins() {
+    document.querySelectorAll('.skin').forEach(b => {
+      const name = tr().themes[b.dataset.id]?.name ?? b.dataset.id;
+      b.title = name;
+      b.querySelector('span').textContent = name;
+    });
+  }
   function useTheme(id) {
     theme = THEMES.find(t => t.id === id) || THEMES[0];
     document.documentElement.dataset.skin = theme.id;
     store(SKIN, theme.id);
+    retoast();
     document.querySelectorAll('.skin').forEach(b => b.setAttribute('aria-checked', b.dataset.id === theme.id));
     if (S) render();
   }
@@ -640,12 +692,11 @@
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'skin'; b.dataset.id = t.id;
       b.setAttribute('role', 'radio');
-      b.title = t.name;
       b.innerHTML = `<svg viewBox="0 0 40 53" aria-hidden="true"><use href="#${t.id}-k-${t.preview}"></use></svg><span></span>`;
-      b.querySelector('span').textContent = t.name;
       b.onclick = () => useTheme(t.id);
       row.appendChild(b);
     });
+    labelSkins();
   }
 
   // The faces are inlined rather than referenced as assets/themes/<style>.svg#…,
@@ -665,8 +716,6 @@
     }))
     .catch(() => {
       S = fresh(1);
-      notice('Tiles did not load',
-        'The tile pictures in assets/themes could not be fetched. If you opened index.html as a file, serve the folder instead, for example with python3 -m http.server.',
-        []);
+      notice(tr().loadFailed, tr().loadFailedBody, []);
     });
 })();
