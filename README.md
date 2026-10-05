@@ -14,6 +14,10 @@ prints and bones. Chameleon tiles change colour and fade, with leaves and
 ladybirds falling. Reef tiles float up among bubbles. Haunted tiles turn to
 ghosts and let out bats.
 
+Clearing the whole board starts a celebration in the same style: lanterns
+and sparks, leaping dogs under a rain of bones, leaping chameleons and
+butterflies, fish and a whale swimming past, or a swarm of bats.
+
 Pick two free tiles with the same face to clear them. A tile is free when
 nothing rests on it and its left or right side is open. Any flower matches
 any flower, and any season matches any season.

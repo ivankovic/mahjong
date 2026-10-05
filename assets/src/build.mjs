@@ -376,6 +376,7 @@ function reef() {
   return {
     id: 'reef', name: 'Coral Reef', preview: 'wE',
     fx: {
+      fish,
       bubble: C(50, 50, 42, { fill: 'rgba(255,255,255,.3)', stroke: '#4fb3e0', strokeWidth: 3 }) +
         C(50, 50, 37, { fill: 'none', stroke: '#ffffff', strokeWidth: 6 }) +
         P('M27 42 A24 24 0 0 1 43 25', line('#fff', 8)),
@@ -458,7 +459,7 @@ function halloween() {
 
   return {
     id: 'halloween', name: 'Haunted Night', preview: 'c1',
-    fx: { bat },
+    fx: { bat, pumpkin },
     suits: { c: { name: 'pumpkins', pic: pumpkin, colour: '#e65100' }, b: { name: 'bats', pic: bat, colour: '#4a2a6a' }, d: { name: 'candy corns', pic: corn, colour: '#b45309' } },
     honours: [
       { name: 'Ghost', pic: ghost }, { name: 'Black cat', pic: cat }, { name: 'Skull', pic: skull }, { name: 'Monster', pic: monster },
@@ -491,9 +492,16 @@ const writeSprite = (id, faces, fx = {}) => {
 };
 
 const manifest = [];
-writeSprite('classic', classicSet());
+const classicFx = {
+  lantern: P('M50 2 V14', line('#b8860b', 3)) + R(38, 12, 24, 8, { rx: 2, fill: '#d4a017' }) +
+    E(50, 50, 34, 30, { fill: '#d62828', stroke: '#8b1a1a', strokeWidth: 3 }) + C(50, 50, 12, { fill: '#ffb703', opacity: .55 }) +
+    P('M50 20 V80 M34 24 Q24 50 34 76 M66 24 Q76 50 66 76', line('#8b1a1a', 2.5)) +
+    R(38, 78, 24, 8, { rx: 2, fill: '#d4a017' }) + P('M50 86 V98 M45 88 V97 M55 88 V97', line('#d4a017', 3)),
+  spark: P(starPath(50, 50, 46, 12, 4), { fill: '#f2c94c' }),
+};
+writeSprite('classic', classicSet(), classicFx);
 manifest.push({
-  id: 'classic', name: 'Classic', preview: 'gR', fx: [],
+  id: 'classic', name: 'Classic', preview: 'gR', fx: Object.keys(classicFx),
   suits: { c: 'characters', b: 'bamboo', d: 'dots' },
   honours: ['East wind', 'South wind', 'West wind', 'North wind', 'Red dragon', 'Green dragon', 'White dragon'],
   flowers: { group: 'flower', items: ['Plum', 'Orchid', 'Chrysanthemum', 'Bamboo'] },

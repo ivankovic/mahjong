@@ -3,7 +3,10 @@
     "id": "classic",
     "name": "Classic",
     "preview": "gR",
-    "fx": [],
+    "fx": [
+      "lantern",
+      "spark"
+    ],
     "suits": {
       "c": "characters",
       "b": "bamboo",
@@ -124,6 +127,7 @@
     "name": "Coral Reef",
     "preview": "wE",
     "fx": [
+      "fish",
       "bubble"
     ],
     "suits": {
@@ -164,7 +168,8 @@
     "name": "Haunted Night",
     "preview": "c1",
     "fx": [
-      "bat"
+      "bat",
+      "pumpkin"
     ],
     "suits": {
       "c": "pumpkins",

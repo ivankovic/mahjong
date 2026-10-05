@@ -191,9 +191,9 @@
       const best = Number(load(BEST)) || 0;
       const isBest = !best || S.elapsed < best;
       if (isBest) store(BEST, String(S.elapsed));
-      notice('Board cleared',
+      celebrate(() => notice('Board cleared',
         `Deal #${S.seed} in ${fmt(S.elapsed)}. ` + (isBest ? 'That is your best time.' : `Your best is ${fmt(best)}.`),
-        [['New deal', newDeal, true], ['Replay this deal', restart]]);
+        [['New deal', newDeal, true], ['Replay this deal', restart]]));
     } else if (countPairs() === 0) {
       notice('No pairs left',
         `${left} tiles remain, but no two free tiles match. Shuffle the remaining tiles into a layout that can be cleared, or undo.`,
@@ -236,6 +236,47 @@
         board.appendChild(p);
       }
     });
+  }
+
+  /* ---------- Clearing the board ---------- */
+  // Each style's celebration: [symbol, how it moves, how many, size in half-tile
+  // widths]. Symbols are the style's fx-* pictures or its own tile faces.
+  const PARTY = {
+    classic: [['fx-lantern', 'rise', 12, 3], ['fx-spark', 'rain', 30, 1.2]],
+    dogs: [['k-wE', 'bounce', 2, 4], ['k-wS', 'bounce', 2, 4], ['k-wW', 'bounce', 2, 4], ['k-wN', 'bounce', 2, 4],
+      ['fx-bone', 'rain', 18, 1.8], ['fx-paw', 'rain', 18, 1.6]],
+    chameleons: [['k-wE', 'bounce', 2, 4.5], ['k-wS', 'bounce', 2, 4.5], ['k-wW', 'bounce', 2, 4.5], ['k-wN', 'bounce', 2, 4.5],
+      ['k-gR', 'rise', 8, 3], ['fx-leaf', 'rain', 22, 1.8], ['fx-ladybug', 'rain', 8, 1.5]],
+    reef: [['fx-fish', 'swim', 24, 2], ['k-gR', 'swim', 2, 7], ['k-wE', 'rise', 3, 4], ['k-wN', 'rise', 3, 4], ['fx-bubble', 'rise', 36, 1.6]],
+    halloween: [['fx-bat', 'swarm', 30, 2.6], ['k-wE', 'rise', 5, 4], ['fx-pumpkin', 'bounce', 8, 2.6]],
+  };
+  let partyTimer = 0;
+  function celebrate(then) {
+    const layer = $('#party'), parts = PARTY[theme.id];
+    if (calm.matches || !parts) { then(); return; }
+    const W = layer.clientWidth, H = layer.clientHeight;
+    const ux = parseFloat(board.style.getPropertyValue('--ux')) || 20;
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    parts.forEach(([sym, kind, count, size]) => {
+      for (let k = 0; k < count; k++) {
+        const s = size * ux;
+        let x0, y0, x1, y1, ym, dur = rnd(2.4, 3.6);
+        if (kind === 'rain') { x0 = rnd(0, W); y0 = -s; x1 = x0 + rnd(-60, 60); y1 = H + s; }
+        else if (kind === 'rise') { x0 = rnd(0, W); y0 = H + s; x1 = x0 + rnd(-80, 80); y1 = -s; dur = rnd(3, 4.5); }
+        else if (kind === 'swim') { x0 = W + s; y0 = rnd(.1, .9) * H; x1 = -s * 1.5; y1 = y0 + rnd(-40, 40); }
+        else if (kind === 'swarm') { x0 = -s; y0 = rnd(.3, 1) * H; x1 = W + s; y1 = y0 - rnd(.3, .8) * H; dur = rnd(1.8, 2.8); }
+        else { x0 = rnd(.05, .95) * W; y0 = H + s * .2; ym = rnd(.1, .45) * H; x1 = x0 + rnd(-.2, .2) * W; y1 = H + s; dur = rnd(1.6, 2.2); }
+        ym ??= (y0 + y1) / 2;
+        const p = document.createElement('span'), px = v => Math.round(v - s / 2) + 'px';
+        p.className = 'party-bit party-' + kind;
+        p.style.cssText = `width:${s}px;height:${s}px;--x0:${px(x0)};--y0:${px(y0)};--xm:${px((x0 + x1) / 2)};--ym:${px(ym)};` +
+          `--x1:${px(x1)};--y1:${px(y1)};animation-duration:${dur.toFixed(2)}s;animation-delay:${rnd(0, 1.8).toFixed(2)}s`;
+        p.innerHTML = `<svg aria-hidden="true"><use href="#${theme.id}-${sym}" width="100%" height="100%"></use></svg>`;
+        p.addEventListener('animationend', e => { if (e.target === p) p.remove(); });
+        layer.appendChild(p);
+      }
+    });
+    partyTimer = setTimeout(then, 1600);
   }
 
   /* ---------- Actions ---------- */
@@ -324,6 +365,8 @@
   }
   function begin(seed) {
     clearHint(); sel = null; hintCycle = 0; hideNotice();
+    clearTimeout(partyTimer);
+    $('#party').replaceChildren();
     S = fresh(seed);
     render();
   }
@@ -399,8 +442,6 @@
     document.documentElement.dataset.skin = theme.id;
     store(SKIN, theme.id);
     document.querySelectorAll('.skin').forEach(b => b.setAttribute('aria-checked', b.dataset.id === theme.id));
-    $('#flowerRule').textContent = `Any ${theme.flowers.group} matches any ${theme.flowers.group}`;
-    $('#seasonRule').textContent = `any ${theme.seasons.group} matches any ${theme.seasons.group}`;
     if (S) render();
   }
   function buildPicker() {
