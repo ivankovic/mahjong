@@ -173,6 +173,7 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
 :root[data-skin="chameleons"] { --cover-bg: #b9e4a5; }
 :root[data-skin="reef"] { --cover-bg: #9fdcf3; }
 :root[data-skin="halloween"] { --cover-bg: #3a2a55; }
+:root[data-skin="swiss"] { --cover-bg: #f2f8fd; }
 .helper { position: absolute; left: 0; top: 0; z-index: 8100; pointer-events: none; }
 .helper svg { display: block; width: 100%; height: 100%; overflow: visible; animation: party-wiggle .3s ease-in-out infinite alternate; }
 
@@ -283,7 +284,7 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
 
 /* Styles. Each is one look whatever the system theme, so every token is set
    here, and these come after the dark-mode blocks so they win over them. */
-:root[data-skin="dogs"], :root[data-skin="chameleons"], :root[data-skin="reef"], :root[data-skin="halloween"] {
+:root[data-skin="dogs"], :root[data-skin="chameleons"], :root[data-skin="reef"], :root[data-skin="halloween"], :root[data-skin="swiss"] {
   --f-display: "Fredoka", "Trebuchet MS", sans-serif;
   --f-ui: "Fredoka", "Trebuchet MS", sans-serif;
   --display-weight: 700;
@@ -345,4 +346,28 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
   0% { opacity: 1; filter: none; transform: none; }
   30% { opacity: .8; filter: brightness(1.5) drop-shadow(0 0 6px #b388ff); transform: scale(1.06); }
   100% { opacity: 0; filter: blur(6px) brightness(1.8); transform: translateY(-40%) scale(1.25) skewX(-8deg); }
+}
+
+/* Swiss Alps: a snowy sky with mountains along the bottom, and tiles that
+   sled away. */
+:root[data-skin="swiss"] {
+  --table: #cfe4f3; --felt: #eef7fd; --ink: #1d2a36; --muted: #4c6274; --accent: #d52b1e;
+  --panel: #ffffff; --btn: #ffffff; --btn-line: #a6c1d5; --seal-ink: #fff;
+  --shade: rgba(30, 50, 70, .30); --sel: #ffe08a; --hint: #1e88e5; --tile-shadow: rgba(30, 60, 90, .35);
+  --bone: #fffdf8; --bone-edge: #e4dccb; --jade: #d52b1e; --jade-deep: #a01d13; --on-jade: #fff;
+  color-scheme: light;
+}
+:root[data-skin="swiss"] body {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 120'%3E%3Cpath d='M0 120V86L52 40L88 66L148 14L206 74L258 34L318 80L362 48L400 72V120Z' fill='%23b6d1e6'/%3E%3Cpath d='M148 14L134 32L146 28L156 36L164 26ZM52 40L42 49L54 46L62 50ZM258 34L246 46L258 43L268 48Z' fill='%23fff'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 70% 60% at 50% 45%, var(--felt), transparent 75%);
+  background-repeat: repeat-x, no-repeat;
+  background-position: bottom, center;
+  background-size: 640px auto, auto;
+}
+:root[data-skin="swiss"] .tile.out.leaving { animation: leave-sled .8s cubic-bezier(.5, 0, .9, .6) forwards; }
+@keyframes leave-sled {
+  0% { opacity: 1; transform: none; }
+  25% { opacity: 1; transform: translate(-6%, -8%) rotate(-8deg); }
+  100% { opacity: 0; transform: translate(70%, 80%) rotate(20deg) scale(.7); }
 }

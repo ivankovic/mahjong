@@ -241,6 +241,7 @@
     chameleons: { kind: 'fall', count: 3, aim: () => [(Math.random() - .5) * 3, 1.5 + Math.random() * 1.5] },
     reef: { kind: 'rise', count: 5, aim: () => [(Math.random() - .5) * 1.4, -(2 + Math.random() * 1.6)] },
     halloween: { kind: 'fly', count: 3, aim: () => [(Math.random() - .5) * 4, -(1 + Math.random() * 1.5)] },
+    swiss: { kind: 'fall', count: 4, aim: () => [(Math.random() - .5) * 3, 1.5 + Math.random() * 1.5] },
   };
   const calm = matchMedia('(prefers-reduced-motion: reduce)');
   function leave(ids) {
@@ -279,6 +280,8 @@
       ['k-gR', 'rise', 8, 3], ['fx-leaf', 'rain', 22, 1.8], ['fx-ladybug', 'rain', 8, 1.5]],
     reef: [['fx-fish', 'swim', 24, 2], ['k-gR', 'swim', 2, 7], ['k-wE', 'rise', 3, 4], ['k-wN', 'rise', 3, 4], ['fx-bubble', 'rise', 36, 1.6]],
     halloween: [['fx-bat', 'swarm', 30, 2.6], ['k-wE', 'rise', 5, 4], ['fx-pumpkin', 'bounce', 8, 2.6]],
+    swiss: [['k-wE', 'bounce', 3, 4.5], ['k-wS', 'bounce', 2, 4.5], ['k-wW', 'bounce', 2, 4], ['k-wN', 'bounce', 2, 4.5],
+      ['fx-flag', 'rise', 12, 2.2], ['fx-snow', 'rain', 30, 1.6]],
   };
   let partyTimer = 0;
   function celebrate(then) {
@@ -370,6 +373,7 @@
       chameleons: ['Two tiles are shimmering like a rainbow. Find them!', 'Rainbow power! Every pair you can take lights up.'],
       reef: ['Two tiles are hiding pearls. Find the shiny ones!', 'Pearls! Every pair you can take lights up.'],
       halloween: ['Two tiles are under a magic spell. Find them!', 'Abracadabra! Every pair you can take lights up.'],
+      swiss: ['Two tiles are wrapped in gold foil, like chocolate. Find them!', 'Yum! Every pair you can take lights up.'],
     },
     helper: {
       classic: ['fx-lantern', 'A lantern floated by and carried a pair away!'],
@@ -377,6 +381,7 @@
       chameleons: ['k-wE', 'Zap! A chameleon caught a pair with its tongue!'],
       reef: ['k-wE', 'An octopus swam by and grabbed a pair!'],
       halloween: ['k-wE', 'Boo! A ghost made a pair vanish!'],
+      swiss: ['k-wS', 'A St. Bernard came to the rescue and took a pair!'],
     },
     mischief: {
       classic: ['fx-cloud', 'A gust of wind blew clouds over some tiles. Tap them to clear the sky!'],
@@ -384,6 +389,7 @@
       chameleons: ['fx-leaf', 'Leaves fell on some tiles. Tap them to brush them off!'],
       reef: ['fx-bubble', 'Bubbles covered some tiles. Tap them to pop them!'],
       halloween: ['fx-web', 'A spider spun webs over some tiles. Tap them to sweep them away!'],
+      swiss: ['fx-snow', 'Snow fell on some tiles. Tap them to brush it off!'],
     },
   };
 
