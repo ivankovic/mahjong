@@ -1,0 +1,46 @@
+# Publish the game to GitHub Pages.
+#
+# There is no build: the site is index.html, src/ and assets/ as they are.
+# Only those are uploaded, so the licence texts, README and workflows stay
+# in the repository and out of the site.
+#
+# Turning Pages on is a one-time setting, Settings -> Pages, source
+# "GitHub Actions". configure-pages fails early if that has not been done.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  # So a broken deploy can be retried without an empty commit.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time, and never cancel one that is running.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - name: Collect the site
+        run: |
+          mkdir _site
+          cp -r index.html src assets _site/
+
+      - uses: actions/upload-pages-artifact@v3
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

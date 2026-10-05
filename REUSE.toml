@@ -1,0 +1,28 @@
+version = 1
+SPDX-PackageName = "mahjong"
+SPDX-PackageSupplier = "Marko Ivankovic <marko@ivankovic.me>"
+SPDX-PackageDownloadLocation = "https://github.com/ivankovic/mahjong"
+
+# Code: AGPL-3.0-or-later. src/*.js and src/*.css carry their own SPDX
+# headers; the files below have none, either because a licence line at the
+# top would be noise to the people the file is for (README) or because they
+# are the page and the tooling around the program rather than art.
+[[annotations]]
+path = [
+  "index.html",
+  "README.md",
+  ".github/**",
+]
+SPDX-FileCopyrightText = "2026 Marko Ivankovic"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+# Art is licensed separately from code. assets/tiles.svg carries its own
+# header; this rule covers anything else that lands under assets/.
+[[annotations]]
+path = "assets/**"
+SPDX-FileCopyrightText = "2026 Marko Ivankovic"
+SPDX-License-Identifier = "CC-BY-NC-ND-4.0"
+
+# The fonts (IBM Plex Sans, Shippori Mincho B1, Noto Serif TC, all OFL-1.1)
+# are loaded from Google Fonts at runtime and not shipped in this repository,
+# so they need no entry here.

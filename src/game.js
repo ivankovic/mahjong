@@ -1,0 +1,375 @@
+// SPDX-FileCopyrightText: 2026 Marko Ivankovic
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+(() => {
+  const $ = s => document.querySelector(s);
+  const board = $('#board'), wrap = $('#wrap');
+
+  /* ---------- Turtle layout, in half-tile units ---------- */
+  const LAYOUT = [];
+  const add = (x, y, z) => LAYOUT.push({ x2: Math.round(x * 2), y2: Math.round(y * 2), z });
+  [[1, 12], [3, 10], [2, 11], [1, 12], [1, 12], [2, 11], [3, 10], [1, 12]]
+    .forEach(([a, b], y) => { for (let x = a; x <= b; x++) add(x, y, 0); });
+  add(0, 3.5, 0); add(13, 3.5, 0); add(14, 3.5, 0);
+  for (let y = 1; y <= 6; y++) for (let x = 4; x <= 9; x++) add(x, y, 1);
+  for (let y = 2; y <= 5; y++) for (let x = 5; x <= 8; x++) add(x, y, 2);
+  for (let y = 3; y <= 4; y++) for (let x = 6; x <= 7; x++) add(x, y, 3);
+  add(6.5, 3.5, 4);
+  const N = LAYOUT.length; // 144
+
+  LAYOUT.forEach(a => {
+    a.above = []; a.left = []; a.right = [];
+    LAYOUT.forEach((b, j) => {
+      if (a === b) return;
+      const dx = b.x2 - a.x2, dy = b.y2 - a.y2;
+      if (b.z > a.z && Math.abs(dx) < 2 && Math.abs(dy) < 2) a.above.push(j);
+      if (b.z === a.z && Math.abs(dy) < 2) {
+        if (dx === -2) a.left.push(j);
+        if (dx === 2) a.right.push(j);
+      }
+    });
+  });
+  const isFree = (i, present) => {
+    const p = LAYOUT[i];
+    if (p.above.some(j => present[j])) return false;
+    return !p.left.some(j => present[j]) || !p.right.some(j => present[j]);
+  };
+
+  /* ---------- Tile set ---------- */
+  const KINDS = [];
+  for (const s of ['c', 'b', 'd']) for (let n = 1; n <= 9; n++) KINDS.push(s + n);
+  KINDS.push('wE', 'wS', 'wW', 'wN', 'gR', 'gG', 'gW');
+  const keyOf = f => f[0] === 'f' ? 'F' : f[0] === 's' ? 'S' : f;
+
+  // The faces themselves are drawn in assets/tiles.svg, one <symbol id="k-…"> per face.
+  const WIND_NAME = { E: 'East', S: 'South', W: 'West', N: 'North' };
+  const FLOWER_NAME = ['Plum', 'Orchid', 'Chrysanthemum', 'Bamboo'];
+  const SEASON_NAME = ['Spring', 'Summer', 'Autumn', 'Winter'];
+  const nameOf = f => {
+    const k = f[0], v = f.slice(1);
+    if (k === 'c') return v + ' of characters';
+    if (k === 'b') return v + ' of bamboo';
+    if (k === 'd') return v + ' of dots';
+    if (k === 'w') return WIND_NAME[v] + ' wind';
+    if (k === 'g') return { R: 'Red', G: 'Green', W: 'White' }[v] + ' dragon';
+    if (k === 'f') return FLOWER_NAME[v - 1] + ' flower';
+    return SEASON_NAME[v - 1] + ' season';
+  };
+
+  /* ---------- Dealing ---------- */
+  const mulberry32 = a => () => {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+  const shuffle = (arr, rng) => {
+    for (let i = arr.length - 1; i > 0; i--) { const j = rng() * (i + 1) | 0; [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    return arr;
+  };
+
+  // Places pairs by playing the board backwards from full: each pair goes on two tiles
+  // that are free at the same moment, so the reverse order is always a solution.
+  function assign(indices, pairs, rng) {
+    for (let attempt = 0; attempt < 400; attempt++) {
+      const present = new Uint8Array(N);
+      indices.forEach(i => present[i] = 1);
+      const out = {};
+      let ok = true;
+      for (const pr of shuffle(pairs.slice(), rng)) {
+        const free = indices.filter(i => present[i] && isFree(i, present));
+        if (free.length < 2) { ok = false; break; }
+        const a = free[rng() * free.length | 0];
+        let b; do b = free[rng() * free.length | 0]; while (b === a);
+        out[a] = pr[0]; out[b] = pr[1];
+        present[a] = present[b] = 0;
+      }
+      if (ok) return out;
+    }
+    return null;
+  }
+
+  function deal(seed) {
+    const rng = mulberry32(seed);
+    const pairs = [];
+    KINDS.forEach(k => pairs.push([k, k], [k, k]));
+    const fl = shuffle(['f1', 'f2', 'f3', 'f4'], rng), se = shuffle(['s1', 's2', 's3', 's4'], rng);
+    pairs.push([fl[0], fl[1]], [fl[2], fl[3]], [se[0], se[1]], [se[2], se[3]]);
+    const all = [...Array(N).keys()];
+    const out = assign(all, pairs, rng);
+    return all.map(i => out[i]);
+  }
+
+  /* ---------- State ---------- */
+  let S, sel = null, hint = [], hintTimer = 0, hintCycle = 0, lastTick = 0;
+
+  function fresh(seed) {
+    return { seed, faces: deal(seed), present: Array(N).fill(1), history: [], elapsed: 0, started: false, over: false };
+  }
+  const STORE = 'turtle-mahjong-game', BEST = 'turtle-mahjong-best', SHADE = 'turtle-mahjong-shade';
+  const load = k => { try { return localStorage.getItem(k); } catch { return null; } };
+  const store = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+  const valid = s => s && Array.isArray(s.faces) && s.faces.length === N && Array.isArray(s.present) && s.present.length === N;
+
+  /* ---------- Tiles in the DOM ---------- */
+  const tiles = LAYOUT.map((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'tile';
+    el.dataset.i = i;
+    el.setAttribute('role', 'button');
+    el.style.cssText = `--x:${p.x2};--y:${p.y2};--z:${p.z};z-index:${p.z * 1000 + p.y2 * 40 + p.x2}`;
+    el.innerHTML = '<div class="top"><svg viewBox="0 0 40 53" aria-hidden="true"><use></use></svg></div>';
+    board.appendChild(el);
+    return el;
+  });
+
+  function freeTiles() {
+    const out = [];
+    for (let i = 0; i < N; i++) if (S.present[i] && isFree(i, S.present)) out.push(i);
+    return out;
+  }
+  function openGroups() {
+    const g = {};
+    freeTiles().forEach(i => (g[keyOf(S.faces[i])] ||= []).push(i));
+    return Object.values(g).filter(a => a.length > 1);
+  }
+  const countPairs = () => openGroups().reduce((n, a) => n + a.length * (a.length - 1) / 2, 0);
+  const leftCount = () => S.present.reduce((a, b) => a + b, 0);
+
+  const fmt = ms => {
+    const s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, r = s % 60;
+    return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(r).padStart(2, '0');
+  };
+
+  function render() {
+    const free = new Set(freeTiles());
+    tiles.forEach((el, i) => {
+      const on = !!S.present[i], f = S.faces[i];
+      el.classList.toggle('out', !on);
+      el.classList.toggle('blocked', on && !free.has(i));
+      el.classList.toggle('sel', sel === i);
+      el.classList.toggle('hint', hint.includes(i));
+      if (el._f !== f) {
+        el.querySelector('use').setAttribute('href', '#k-' + f);
+        el.setAttribute('aria-label', nameOf(f));
+        el._f = f;
+      }
+    });
+    const pairs = countPairs();
+    $('#left').textContent = leftCount();
+    $('#pairs').textContent = pairs;
+    $('#pairs').classList.toggle('zero', pairs === 0 && leftCount() > 0);
+    $('#time').textContent = fmt(S.elapsed);
+    $('#deal').textContent = 'Deal #' + S.seed;
+    $('#undoBtn').disabled = !S.history.length;
+    $('#hintBtn').disabled = $('#shuffleBtn').disabled = S.over || leftCount() === 0;
+    save();
+  }
+  const save = () => store(STORE, JSON.stringify(S));
+
+  /* ---------- Notices ---------- */
+  function notice(title, body, actions) {
+    $('#nTitle').textContent = title;
+    $('#nBody').textContent = body;
+    const row = $('#nActions');
+    row.innerHTML = '';
+    actions.forEach(([label, fn, primary]) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn' + (primary ? ' primary' : ''); b.textContent = label;
+      b.onclick = () => { hideNotice(); fn(); };
+      row.appendChild(b);
+    });
+    $('#notice').hidden = false;
+    row.firstChild?.focus();
+  }
+  const hideNotice = () => { $('#notice').hidden = true; };
+
+  function checkEnd() {
+    const left = leftCount();
+    if (left === 0) {
+      S.over = true; S.started = false;
+      const best = Number(load(BEST)) || 0;
+      const isBest = !best || S.elapsed < best;
+      if (isBest) store(BEST, String(S.elapsed));
+      notice('Board cleared',
+        `Deal #${S.seed} in ${fmt(S.elapsed)}. ` + (isBest ? 'That is your best time.' : `Your best is ${fmt(best)}.`),
+        [['New deal', newDeal, true], ['Replay this deal', restart]]);
+    } else if (countPairs() === 0) {
+      notice('No pairs left',
+        `${left} tiles remain, but no two free tiles match. Shuffle the remaining tiles into a layout that can be cleared, or undo.`,
+        [['Shuffle tiles', shuffleTiles, true], ['Undo', undo], ['New deal', newDeal]]);
+    }
+  }
+
+  /* ---------- Actions ---------- */
+  function startClock() {
+    if (!S.started && !S.over) { S.started = true; lastTick = performance.now(); }
+  }
+  function clearHint() {
+    clearTimeout(hintTimer);
+    hint = [];
+  }
+
+  function onTile(i) {
+    if (!S.present[i] || S.over) return;
+    startClock();
+    clearHint();
+    if (!isFree(i, S.present)) {
+      const el = tiles[i];
+      el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+      if (sel !== null) { sel = null; render(); }
+      return;
+    }
+    if (sel === i) sel = null;
+    else if (sel !== null && keyOf(S.faces[sel]) === keyOf(S.faces[i])) {
+      S.present[sel] = S.present[i] = 0;
+      S.history.push({ t: 'pair', a: sel, b: i });
+      sel = null;
+      render();
+      checkEnd();
+      return;
+    } else sel = i;
+    render();
+  }
+
+  function undo() {
+    const h = S.history.pop();
+    if (!h) return;
+    clearHint(); sel = null; hideNotice();
+    if (h.t === 'pair') { S.present[h.a] = S.present[h.b] = 1; }
+    else { S.faces = h.prev; }
+    S.over = false;
+    render();
+  }
+
+  function showHint() {
+    if (S.over) return;
+    const groups = openGroups();
+    if (!groups.length) { checkEnd(); return; }
+    startClock();
+    sel = null;
+    const g = groups[hintCycle++ % groups.length];
+    hint = [g[0], g[1]];
+    render();
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(() => { hint = []; render(); }, 2600);
+  }
+
+  function shuffleTiles() {
+    if (S.over) return;
+    const idx = [...Array(N).keys()].filter(i => S.present[i]);
+    if (idx.length < 2) return;
+    const byKey = {};
+    idx.forEach(i => (byKey[keyOf(S.faces[i])] ||= []).push(S.faces[i]));
+    const pairs = [];
+    Object.values(byKey).forEach(a => { for (let k = 0; k + 1 < a.length; k += 2) pairs.push([a[k], a[k + 1]]); });
+    const out = assign(idx, pairs, Math.random);
+    clearHint(); sel = null;
+    if (!out) {
+      render();
+      notice('Shuffling can’t help',
+        `The ${idx.length} tiles left are stacked so that no arrangement of them can be cleared. Undo a few moves or start a new deal.`,
+        [['Undo', undo, true], ['New deal', newDeal]]);
+      return;
+    }
+    startClock();
+    S.history.push({ t: 'shuffle', prev: S.faces.slice() });
+    S.faces = S.faces.map((f, i) => out[i] ?? f);
+    render();
+    checkEnd();
+  }
+
+  const inProgress = () => S.history.length > 0 && !S.over;
+  function confirmThen(title, fn) {
+    if (!inProgress()) { fn(); return; }
+    notice(title, `You have cleared ${N - leftCount()} of ${N} tiles. This game will be lost.`, [[title, fn, true], ['Keep playing', () => {}]]);
+  }
+  function begin(seed) {
+    clearHint(); sel = null; hintCycle = 0; hideNotice();
+    S = fresh(seed);
+    render();
+  }
+  const newDeal = () => begin(1 + Math.floor(Math.random() * 99999));
+  const restart = () => begin(S.seed);
+
+  /* ---------- Wiring ---------- */
+  // Nothing responds until the tiles have loaded and there is a game.
+  const whenDealt = fn => (...a) => { if (S) fn(...a); };
+  board.addEventListener('click', whenDealt(e => {
+    const el = e.target.closest('.tile');
+    if (el) onTile(+el.dataset.i);
+  }));
+  $('#hintBtn').onclick = whenDealt(showHint);
+  $('#undoBtn').onclick = whenDealt(undo);
+  $('#shuffleBtn').onclick = whenDealt(shuffleTiles);
+  $('#restartBtn').onclick = whenDealt(() => confirmThen('Restart deal', restart));
+  $('#newBtn').onclick = whenDealt(() => confirmThen('New deal', newDeal));
+
+  const shade = $('#shade');
+  shade.checked = load(SHADE) !== '0';
+  board.classList.toggle('shade-on', shade.checked);
+  shade.onchange = () => { board.classList.toggle('shade-on', shade.checked); store(SHADE, shade.checked ? '1' : '0'); };
+
+  document.addEventListener('keydown', e => {
+    if (!S || e.target.closest('input, textarea')) return;
+    const k = e.key.toLowerCase();
+    if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); return; }
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (k === 'h') showHint();
+    else if (k === 'u') undo();
+    else if (k === 's') shuffleTiles();
+    else if (k === 'escape') { sel = null; render(); }
+  });
+
+  setInterval(() => {
+    const now = performance.now();
+    if (S && S.started && !S.over && !document.hidden) {
+      S.elapsed += now - lastTick;
+      $('#time').textContent = fmt(S.elapsed);
+    }
+    lastTick = now;
+  }, 250);
+  setInterval(() => S && S.started && save(), 5000);
+
+  function fit() {
+    const W = wrap.clientWidth, H = wrap.clientHeight;
+    const ux = Math.max(8, Math.min(W / 31.4, H / 21.9, 38));
+    const uy = ux * 1.28, d = ux * .3;
+    board.style.setProperty('--ux', ux + 'px');
+    board.style.setProperty('--uy', uy + 'px');
+    board.style.setProperty('--d', d + 'px');
+    board.style.setProperty('--t', ux * .3 + 'px');
+    board.style.width = 30 * ux + 4 * d + 'px';
+    board.style.height = 16 * uy + 4 * d + 'px';
+  }
+  new ResizeObserver(fit).observe(wrap);
+  fit();
+
+  function start() {
+    let saved;
+    try { saved = JSON.parse(load(STORE)); } catch { saved = null; }
+    if (valid(saved)) {
+      S = saved;
+      render();
+      if (!S.over && leftCount() > 0 && countPairs() === 0) checkEnd();
+    } else newDeal();
+  }
+
+  // The faces are inlined rather than referenced as assets/tiles.svg#k-…, so that
+  // they pick up the page's colour tokens and its web font.
+  fetch('assets/tiles.svg')
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(svg => {
+      const holder = document.createElement('div');
+      holder.className = 'sprite';
+      holder.innerHTML = svg;
+      document.body.prepend(holder);
+      start();
+    })
+    .catch(() => {
+      S = fresh(1);
+      notice('Tiles did not load',
+        'The tile pictures in assets/tiles.svg could not be fetched. If you opened index.html as a file, serve the folder instead, for example with python3 -m http.server.',
+        []);
+    });
+})();
