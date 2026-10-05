@@ -140,8 +140,56 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
   .skin { padding: 4px; }
   .skin span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
+/* A matched pair leaving. The tile is already .out; .leaving keeps it visible
+   while its style's exit plays, and game.js drops the class at the end. */
+.tile.out.leaving { visibility: visible; transition: none; animation: leave-fade .25s ease forwards; }
+@keyframes leave-fade { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-8%) scale(.9); } }
+
+/* Pictures flying off a cleared tile, positioned on its centre by game.js.
+   --dx and --dy say where each heads, in half-tile widths. */
+.fx {
+  position: absolute; z-index: 9999; pointer-events: none;
+  width: calc(var(--ux) * 1.3); height: calc(var(--ux) * 1.3);
+  margin: calc(var(--ux) * -.65) 0 0 calc(var(--ux) * -.65);
+  animation: none .8s ease-out var(--delay, 0ms) both;
+}
+.fx svg { display: block; width: 100%; height: 100%; }
+.fx-burst, .fx-rise { width: calc(var(--ux) * 1.7); height: calc(var(--ux) * 1.7); margin: calc(var(--ux) * -.85) 0 0 calc(var(--ux) * -.85); }
+.fx-burst { animation-name: fx-burst; animation-duration: .75s; }
+@keyframes fx-burst {
+  0% { opacity: 0; transform: scale(.3); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(var(--dx) * var(--ux) * 2), calc(var(--dy) * var(--ux) * 2)) rotate(var(--rot)) scale(1); }
+}
+.fx-fall { animation-name: fx-fall; animation-duration: 1.2s; animation-timing-function: ease-in; }
+@keyframes fx-fall {
+  0% { opacity: 0; transform: scale(.4); }
+  15% { opacity: 1; }
+  40% { transform: translate(calc(var(--dx) * var(--ux)), calc(var(--ux) * -1.2)) rotate(calc(var(--rot) * .4)) scale(.9); }
+  100% { opacity: 0; transform: translate(calc(var(--dx) * var(--ux) * 2), calc(var(--dy) * var(--ux) * 2)) rotate(var(--rot)) scale(.9); }
+}
+.fx-rise { animation-name: fx-rise; animation-duration: 1.3s; animation-timing-function: ease-in; }
+@keyframes fx-rise {
+  0% { opacity: 0; transform: scale(.2); }
+  15% { opacity: 1; }
+  35% { transform: translate(calc(var(--dx) * var(--ux) * .6), calc(var(--dy) * var(--ux) * .6)) scale(.6); }
+  65% { transform: translate(calc(var(--dx) * var(--ux) * -.4), calc(var(--dy) * var(--ux) * 1.3)) scale(.8); }
+  100% { opacity: 0; transform: translate(calc(var(--dx) * var(--ux) * .8), calc(var(--dy) * var(--ux) * 2)) scale(1); }
+}
+.fx-fly { animation-name: fx-fly; animation-duration: 1.1s; animation-timing-function: cubic-bezier(.4, 0, .8, .6);
+  width: calc(var(--ux) * 2.6); height: calc(var(--ux) * 2.6); margin: calc(var(--ux) * -1.3) 0 0 calc(var(--ux) * -1.3); }
+@keyframes fx-fly {
+  0% { opacity: 0; transform: scale(.3); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(var(--dx) * var(--ux) * 3), calc(var(--dy) * var(--ux) * 3)) scale(1.1); }
+}
+.fx-fly svg { animation: flap .14s ease-in-out infinite alternate; filter: drop-shadow(0 0 3px var(--accent)); }
+@keyframes flap { to { transform: scaleY(.45); } }
+
 @media (prefers-reduced-motion: reduce) {
   .tile, .tile.out { transition: none; }
+  .tile.out.leaving { animation: none; visibility: hidden; }
+  .fx { display: none; }
   .tile.shake { animation: none; }
   .tile.hint .top { animation: none; background: var(--sel); box-shadow: inset 0 0 0 calc(var(--ux) * .17) var(--hint); }
 }
@@ -196,3 +244,31 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
   color-scheme: dark;
 }
 :root[data-skin="halloween"] h1 { letter-spacing: .04em; }
+
+/* Each style's way of clearing a pair. */
+:root[data-skin="dogs"] .tile.out.leaving { animation: leave-hop .65s cubic-bezier(.3, .6, .4, 1) forwards; }
+@keyframes leave-hop {
+  0% { opacity: 1; transform: none; }
+  35% { opacity: 1; transform: translateY(-35%) rotate(-12deg) scale(1.08); }
+  100% { opacity: 0; transform: translateY(-5%) rotate(200deg) scale(.1); }
+}
+:root[data-skin="chameleons"] .tile.out.leaving { animation: leave-camo .9s ease-in-out forwards; }
+@keyframes leave-camo {
+  0% { opacity: 1; filter: none; transform: none; }
+  50% { opacity: .9; filter: hue-rotate(180deg) saturate(2.2); transform: scale(1.05); }
+  100% { opacity: 0; filter: hue-rotate(360deg) saturate(1.5); transform: scale(.85); }
+}
+:root[data-skin="reef"] .tile.out.leaving { animation: leave-float 1s ease-in forwards; }
+@keyframes leave-float {
+  0% { opacity: 1; transform: none; }
+  25% { transform: translate(-6%, -12%) rotate(-4deg); }
+  50% { opacity: .9; transform: translate(6%, -30%) rotate(4deg) scale(.92); }
+  75% { transform: translate(-5%, -50%) rotate(-3deg) scale(.8); }
+  100% { opacity: 0; transform: translate(0, -75%) scale(.6); }
+}
+:root[data-skin="halloween"] .tile.out.leaving { animation: leave-ghost .85s ease-in forwards; }
+@keyframes leave-ghost {
+  0% { opacity: 1; filter: none; transform: none; }
+  30% { opacity: .8; filter: brightness(1.5) drop-shadow(0 0 6px #b388ff); transform: scale(1.06); }
+  100% { opacity: 0; filter: blur(6px) brightness(1.8); transform: translateY(-40%) scale(1.25) skewX(-8deg); }
+}

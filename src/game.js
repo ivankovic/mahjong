@@ -144,6 +144,7 @@
     tiles.forEach((el, i) => {
       const on = !!S.present[i], f = S.faces[i];
       el.classList.toggle('out', !on);
+      if (on) el.classList.remove('leaving');
       el.classList.toggle('blocked', on && !free.has(i));
       el.classList.toggle('sel', sel === i);
       el.classList.toggle('hint', hint.includes(i));
@@ -200,6 +201,43 @@
     }
   }
 
+  /* ---------- Clearing a pair ---------- */
+  // The tiles' own exit is the style's `.tile.out.leaving` animation in
+  // style.css. On top of that, a few of the style's fx pictures fly off each
+  // tile; `kind` picks how (the .fx-<kind> animations) and where they head,
+  // in half-tile widths.
+  const FX = {
+    dogs: { kind: 'burst', count: 5, aim: () => { const a = Math.random() * 2 * Math.PI, d = 1.4 + Math.random(); return [Math.cos(a) * d, Math.sin(a) * d]; } },
+    chameleons: { kind: 'fall', count: 3, aim: () => [(Math.random() - .5) * 3, 1.5 + Math.random() * 1.5] },
+    reef: { kind: 'rise', count: 5, aim: () => [(Math.random() - .5) * 1.4, -(2 + Math.random() * 1.6)] },
+    halloween: { kind: 'fly', count: 3, aim: () => [(Math.random() - .5) * 4, -(1 + Math.random() * 1.5)] },
+  };
+  const calm = matchMedia('(prefers-reduced-motion: reduce)');
+  function leave(ids) {
+    if (calm.matches) return;
+    const fx = theme.fx.length && FX[theme.id];
+    ids.forEach(i => {
+      const el = tiles[i];
+      el.classList.add('leaving');
+      el.addEventListener('animationend', function done(e) {
+        if (e.target !== el) return;
+        el.classList.remove('leaving');
+        el.removeEventListener('animationend', done);
+      });
+      if (!fx) return;
+      const x = el.offsetLeft + el.offsetWidth / 2, y = el.offsetTop + el.offsetHeight / 2;
+      for (let k = 0; k < fx.count; k++) {
+        const [dx, dy] = fx.aim(), p = document.createElement('span');
+        p.className = 'fx fx-' + fx.kind;
+        p.style.cssText = `left:${x}px;top:${y}px;--dx:${dx.toFixed(2)};--dy:${dy.toFixed(2)};` +
+          `--rot:${Math.round(Math.random() * 540 - 270)}deg;--delay:${Math.round(Math.random() * 150)}ms`;
+        p.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true"><use href="#${theme.id}-fx-${theme.fx[k % theme.fx.length]}"></use></svg>`;
+        p.addEventListener('animationend', e => { if (e.target === p) p.remove(); });
+        board.appendChild(p);
+      }
+    });
+  }
+
   /* ---------- Actions ---------- */
   function startClock() {
     if (!S.started && !S.over) { S.started = true; lastTick = performance.now(); }
@@ -223,6 +261,7 @@
     else if (sel !== null && keyOf(S.faces[sel]) === keyOf(S.faces[i])) {
       S.present[sel] = S.present[i] = 0;
       S.history.push({ t: 'pair', a: sel, b: i });
+      leave([sel, i]);
       sel = null;
       render();
       checkEnd();

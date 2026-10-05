@@ -3,6 +3,7 @@
     "id": "classic",
     "name": "Classic",
     "preview": "gR",
+    "fx": [],
     "suits": {
       "c": "characters",
       "b": "bamboo",
@@ -40,6 +41,10 @@
     "id": "dogs",
     "name": "Dog Park",
     "preview": "wS",
+    "fx": [
+      "paw",
+      "bone"
+    ],
     "suits": {
       "c": "bones",
       "b": "paw prints",
@@ -77,6 +82,10 @@
     "id": "chameleons",
     "name": "Chameleon Jungle",
     "preview": "wS",
+    "fx": [
+      "leaf",
+      "ladybug"
+    ],
     "suits": {
       "c": "leaves",
       "b": "ladybirds",
@@ -114,6 +123,9 @@
     "id": "reef",
     "name": "Coral Reef",
     "preview": "wE",
+    "fx": [
+      "bubble"
+    ],
     "suits": {
       "c": "fish",
       "b": "shells",
@@ -151,6 +163,9 @@
     "id": "halloween",
     "name": "Haunted Night",
     "preview": "c1",
+    "fx": [
+      "bat"
+    ],
     "suits": {
       "c": "pumpkins",
       "b": "bats",

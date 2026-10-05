@@ -9,6 +9,11 @@ each tile with its number at the top. There are seven single pictures in
 place of the winds and dragons, and two groups of four in place of the
 flowers and seasons, where any tile matches any other tile in its group.
 
+Each style also clears a pair its own way. Dogs hop off in a burst of paw
+prints and bones. Chameleon tiles change colour and fade, with leaves and
+ladybirds falling. Reef tiles float up among bubbles. Haunted tiles turn to
+ghosts and let out bats.
+
 Pick two free tiles with the same face to clear them. A tile is free when
 nothing rests on it and its left or right side is open. Any flower matches
 any flower, and any season matches any season.
@@ -54,8 +59,9 @@ Then open <http://localhost:8000/>.
 
 The sprites are generated. To change a picture, edit `assets/src/build.mjs`
 and run `node assets/src/build.mjs`, then commit both. The page's colours,
-fonts and tile bodies for each style are the `[data-skin]` blocks in
-`src/style.css`.
+fonts, tile bodies and clearing animations for each style are the
+`[data-skin]` blocks in `src/style.css`; the pictures that fly off a cleared
+tile are the `<style>-fx-*` symbols, and `FX` in `src/game.js` says how they move.
 
 ## Deployment
 
