@@ -15,18 +15,13 @@
 <body>
 <div class="app">
   <header class="bar">
-    <div class="brand">
-      <div class="seal" aria-hidden="true">龜</div>
-      <div>
-        <h1 data-i18n="title">Turtle Mahjong</h1>
-        <p class="deal" id="deal">Deal</p>
-      </div>
+    <div class="skin-menu" id="skinMenu">
+      <button class="skin-btn" id="skinBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="skins">
+        <svg viewBox="0 0 40 53" aria-hidden="true"><use id="skinBtnUse"></use></svg>
+        <span id="skinBtnName"></span><span class="caret" aria-hidden="true">▾</span>
+      </button>
+      <div class="skins" id="skins" role="radiogroup" aria-label="Tile style" hidden></div>
     </div>
-    <dl class="stats">
-      <div><dt data-i18n="tilesLeft">Tiles left</dt><dd id="left">144</dd></div>
-      <div><dt data-i18n="openPairs">Open pairs</dt><dd id="pairs">0</dd></div>
-      <div><dt data-i18n="time">Time</dt><dd id="time">0:00</dd></div>
-    </dl>
     <div class="actions">
       <button class="btn" id="hintBtn" type="button"><span data-i18n="hint">Hint</span><kbd>H</kbd></button>
       <button class="btn" id="undoBtn" type="button"><span data-i18n="undo">Undo</span><kbd>U</kbd></button>
@@ -34,11 +29,9 @@
       <button class="btn" id="restartBtn" type="button" data-i18n="restart">Restart</button>
       <button class="btn primary" id="newBtn" type="button" data-i18n="newDeal">New deal</button>
       <label class="toggle"><input type="checkbox" id="shade" checked> <span data-i18n="shade">Shade blocked tiles</span></label>
-      <div class="langs" id="langs" role="radiogroup" aria-label="Language"></div>
     </div>
+    <div class="langs" id="langs" role="radiogroup" aria-label="Language"></div>
   </header>
-
-  <div class="skins" id="skins" role="radiogroup" aria-label="Tile style"></div>
 
   <main class="board-wrap" id="wrap">
     <div class="board shade-on" id="board" aria-label="Mahjong solitaire board"></div>

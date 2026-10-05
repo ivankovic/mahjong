@@ -205,46 +205,5 @@
         "Candle"
       ]
     }
-  },
-  {
-    "id": "swiss",
-    "name": "Swiss Alps",
-    "preview": "wE",
-    "fx": [
-      "snow",
-      "flag"
-    ],
-    "suits": {
-      "c": "Swiss flags",
-      "b": "cheeses",
-      "d": "cowbells"
-    },
-    "honours": [
-      "Cow",
-      "St. Bernard",
-      "Marmot",
-      "Ibex",
-      "Matterhorn",
-      "Chalet",
-      "Mountain train"
-    ],
-    "flowers": {
-      "group": "alpine flower",
-      "items": [
-        "Edelweiss",
-        "Gentian",
-        "Alpine rose",
-        "Aster"
-      ]
-    },
-    "seasons": {
-      "group": "mountain fun tile",
-      "items": [
-        "Alphorn",
-        "Sled",
-        "Skis",
-        "Gondola"
-      ]
-    }
   }
 ]

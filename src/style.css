@@ -51,21 +51,8 @@ body {
 }
 
 /* Bar */
-.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; }
-.brand { display: flex; align-items: center; gap: 12px; }
-.seal {
-  width: 2.3rem; height: 2.3rem; flex: none; display: grid; place-items: center;
-  background: var(--accent); color: var(--seal-ink); border-radius: 4px;
-  font: 900 1.45rem/1 var(--f-glyph); transform: rotate(-4deg);
-}
-h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 var(--f-display); letter-spacing: .01em; text-wrap: balance; }
-.deal { margin: 2px 0 0; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-
-.stats { display: flex; gap: 22px; margin: 0; }
-.stats div { display: flex; flex-direction: column; gap: 1px; }
-.stats dt { font-size: .66rem; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
-.stats dd { margin: 0; font: 600 1.2rem/1.1 var(--f-ui); font-variant-numeric: tabular-nums; }
-.stats dd.zero { color: var(--accent); }
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.actions { flex: 1 1 auto; justify-content: center; }
 
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .btn {
@@ -175,7 +162,6 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
 :root[data-skin="chameleons"] { --cover-bg: #b9e4a5; }
 :root[data-skin="reef"] { --cover-bg: #9fdcf3; }
 :root[data-skin="halloween"] { --cover-bg: #3a2a55; }
-:root[data-skin="swiss"] { --cover-bg: #f2f8fd; }
 .helper { position: absolute; left: 0; top: 0; z-index: 8100; pointer-events: none; }
 .helper svg { display: block; width: 100%; height: 100%; overflow: visible; animation: party-wiggle .3s ease-in-out infinite alternate; }
 
@@ -211,11 +197,10 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
 .sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 
 @media (max-width: 640px) {
-  .stats { gap: 16px; }
   .btn { padding: .5rem .62rem; }
   .btn kbd { display: none; }
-  .skin { padding: 4px; }
-  .skin span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  #skinBtnName { display: none; }
+  .bar .actions { order: 3; flex-basis: 100%; }
 }
 /* A matched pair leaving. The tile is already .out; .leaving keeps it visible
    while its style's exit plays, and game.js drops the class at the end. */
@@ -272,7 +257,7 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
 }
 
 /* Language switch */
-.langs { display: inline-flex; border: 1px solid var(--btn-line); border-radius: 6px; overflow: hidden; margin-left: 4px; }
+.langs { display: inline-flex; border: 1px solid var(--btn-line); border-radius: 6px; overflow: hidden; }
 .lang {
   font: 600 .78rem/1 var(--f-ui); letter-spacing: .05em; color: var(--muted);
   background: var(--btn); border: 0; padding: .5rem .55rem; cursor: pointer;
@@ -282,7 +267,21 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
 .lang:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
 /* Style picker */
-.skins { display: flex; flex-wrap: wrap; gap: 8px; }
+.skin-menu { position: relative; }
+.skin-btn {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  font: 600 .9rem/1 var(--f-ui); color: var(--ink);
+  background: var(--btn); border: 2px solid var(--btn-line); border-radius: 999px; padding: 3px 12px 3px 4px;
+}
+.skin-btn svg { width: 26px; height: 34px; background: #fbf7ec; border-radius: 4px; box-shadow: 1px 1px 0 rgba(0, 0, 0, .2); }
+.skin-btn:hover { border-color: var(--accent); }
+.skin-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.caret { color: var(--muted); font-size: .8rem; }
+.skins {
+  position: absolute; z-index: 9500; top: calc(100% + 6px); left: 0; min-width: 15rem;
+  display: flex; flex-direction: column; gap: 6px; padding: 8px;
+  background: var(--panel); border: 1px solid var(--btn-line); border-radius: 12px; box-shadow: 0 14px 40px var(--tile-shadow);
+}
 .skin {
   display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
   font: 600 .9rem/1 var(--f-ui); color: var(--ink);
@@ -296,7 +295,7 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
 
 /* Styles. Each is one look whatever the system theme, so every token is set
    here, and these come after the dark-mode blocks so they win over them. */
-:root[data-skin="dogs"], :root[data-skin="chameleons"], :root[data-skin="reef"], :root[data-skin="halloween"], :root[data-skin="swiss"] {
+:root[data-skin="dogs"], :root[data-skin="chameleons"], :root[data-skin="reef"], :root[data-skin="halloween"] {
   --f-display: "Fredoka", "Trebuchet MS", sans-serif;
   --f-ui: "Fredoka", "Trebuchet MS", sans-serif;
   --display-weight: 700;
@@ -330,7 +329,6 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
   --f-display: "Creepster", "Fredoka", fantasy; --display-weight: 400;
   color-scheme: dark;
 }
-:root[data-skin="halloween"] h1 { letter-spacing: .04em; }
 
 /* Each style's way of clearing a pair. */
 :root[data-skin="dogs"] .tile.out.leaving { animation: leave-hop .65s cubic-bezier(.3, .6, .4, 1) forwards; }
@@ -360,26 +358,3 @@ h1 { margin: 0; font: var(--display-weight) clamp(1.3rem, 2.3vw, 1.75rem)/1.05 v
   100% { opacity: 0; filter: blur(6px) brightness(1.8); transform: translateY(-40%) scale(1.25) skewX(-8deg); }
 }
 
-/* Swiss Alps: a snowy sky with mountains along the bottom, and tiles that
-   sled away. */
-:root[data-skin="swiss"] {
-  --table: #cfe4f3; --felt: #eef7fd; --ink: #1d2a36; --muted: #4c6274; --accent: #d52b1e;
-  --panel: #ffffff; --btn: #ffffff; --btn-line: #a6c1d5; --seal-ink: #fff;
-  --shade: rgba(30, 50, 70, .30); --sel: #ffe08a; --hint: #1e88e5; --tile-shadow: rgba(30, 60, 90, .35);
-  --bone: #fffdf8; --bone-edge: #e4dccb; --jade: #d52b1e; --jade-deep: #a01d13; --on-jade: #fff;
-  color-scheme: light;
-}
-:root[data-skin="swiss"] body {
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 120'%3E%3Cpath d='M0 120V86L52 40L88 66L148 14L206 74L258 34L318 80L362 48L400 72V120Z' fill='%23b6d1e6'/%3E%3Cpath d='M148 14L134 32L146 28L156 36L164 26ZM52 40L42 49L54 46L62 50ZM258 34L246 46L258 43L268 48Z' fill='%23fff'/%3E%3C/svg%3E"),
-    radial-gradient(ellipse 70% 60% at 50% 45%, var(--felt), transparent 75%);
-  background-repeat: repeat-x, no-repeat;
-  background-position: bottom, center;
-  background-size: 640px auto, auto;
-}
-:root[data-skin="swiss"] .tile.out.leaving { animation: leave-sled .8s cubic-bezier(.5, 0, .9, .6) forwards; }
-@keyframes leave-sled {
-  0% { opacity: 1; transform: none; }
-  25% { opacity: 1; transform: translate(-6%, -8%) rotate(-8deg); }
-  100% { opacity: 0; transform: translate(70%, 80%) rotate(20deg) scale(.7); }
-}

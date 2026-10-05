@@ -191,12 +191,6 @@
         el._ref = ref;
       }
     });
-    const pairs = countPairs();
-    $('#left').textContent = leftCount();
-    $('#pairs').textContent = pairs;
-    $('#pairs').classList.toggle('zero', pairs === 0 && leftCount() > 0);
-    $('#time').textContent = fmt(S.elapsed);
-    $('#deal').textContent = tr().deal(S.seed);
     $('#undoBtn').disabled = !S.history.length;
     $('#hintBtn').disabled = $('#shuffleBtn').disabled = S.over || leftCount() === 0;
     save();
@@ -227,7 +221,7 @@
       const best = Number(load(BEST)) || 0;
       const isBest = !best || S.elapsed < best;
       if (isBest) store(BEST, String(S.elapsed));
-      celebrate(() => notice(tr().cleared, tr().clearedBody(S.seed, fmt(S.elapsed), fmt(best), isBest),
+      celebrate(() => notice(tr().cleared, tr().clearedBody(fmt(S.elapsed), fmt(best), isBest),
         [[tr().newDeal, newDeal, true], [tr().replay, restart]]));
     } else if (countPairs() === 0) {
       notice(tr().stuck, tr().stuckBody(left),
@@ -245,7 +239,6 @@
     chameleons: { kind: 'fall', count: 3, aim: () => [(Math.random() - .5) * 3, 1.5 + Math.random() * 1.5] },
     reef: { kind: 'rise', count: 5, aim: () => [(Math.random() - .5) * 1.4, -(2 + Math.random() * 1.6)] },
     halloween: { kind: 'fly', count: 3, aim: () => [(Math.random() - .5) * 4, -(1 + Math.random() * 1.5)] },
-    swiss: { kind: 'fall', count: 4, aim: () => [(Math.random() - .5) * 3, 1.5 + Math.random() * 1.5] },
   };
   const calm = matchMedia('(prefers-reduced-motion: reduce)');
   function leave(ids) {
@@ -284,8 +277,6 @@
       ['k-gR', 'rise', 8, 3], ['fx-leaf', 'rain', 22, 1.8], ['fx-ladybug', 'rain', 8, 1.5]],
     reef: [['fx-fish', 'swim', 24, 2], ['k-gR', 'swim', 2, 7], ['k-wE', 'rise', 3, 4], ['k-wN', 'rise', 3, 4], ['fx-bubble', 'rise', 36, 1.6]],
     halloween: [['fx-bat', 'swarm', 30, 2.6], ['k-wE', 'rise', 5, 4], ['fx-pumpkin', 'bounce', 8, 2.6]],
-    swiss: [['k-wE', 'bounce', 3, 4.5], ['k-wS', 'bounce', 2, 4.5], ['k-wW', 'bounce', 2, 4], ['k-wN', 'bounce', 2, 4.5],
-      ['fx-flag', 'rise', 12, 2.2], ['fx-snow', 'rain', 30, 1.6]],
   };
   let partyTimer = 0;
   function celebrate(then) {
@@ -390,8 +381,8 @@
   // Who comes to help, and what covers the tiles in mischief: the style's own
   // fx-* or k-* symbols. What the toasts say is in src/i18n.js.
   const EVENTS = {
-    helper: { classic: 'fx-lantern', dogs: 'k-wS', chameleons: 'k-wE', reef: 'k-wE', halloween: 'k-wE', swiss: 'k-wS' },
-    mischief: { classic: 'fx-cloud', dogs: 'fx-paw', chameleons: 'fx-leaf', reef: 'fx-bubble', halloween: 'fx-web', swiss: 'fx-snow' },
+    helper: { classic: 'fx-lantern', dogs: 'k-wS', chameleons: 'k-wE', reef: 'k-wE', halloween: 'k-wE' },
+    mischief: { classic: 'fx-cloud', dogs: 'fx-paw', chameleons: 'fx-leaf', reef: 'fx-bubble', halloween: 'fx-web' },
   };
 
   let toastTimer = 0;
@@ -582,6 +573,7 @@
     if (!S || e.target.closest('input, textarea')) return;
     const k = e.key.toLowerCase();
     if (!$('#help').hidden) { if (k === 'escape') closeHelp(); return; }
+    if (!$('#skins').hidden) { if (k === 'escape') { skinsOpen(false); $('#skinBtn').focus(); } return; }
     if (k === '?') { openHelp(); return; }
     if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); return; }
     if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -595,7 +587,6 @@
     const now = performance.now();
     if (S && S.started && !S.over && !paused && !document.hidden) {
       S.elapsed += now - lastTick;
-      $('#time').textContent = fmt(S.elapsed);
     }
     lastTick = now;
   }, 250);
@@ -673,16 +664,28 @@
   /* ---------- Styles ---------- */
   function labelSkins() {
     document.querySelectorAll('.skin').forEach(b => {
-      const name = tr().themes[b.dataset.id]?.name ?? b.dataset.id;
-      b.title = name;
-      b.querySelector('span').textContent = name;
+      b.querySelector('span').textContent = tr().themes[b.dataset.id]?.name ?? b.dataset.id;
     });
+    if (theme) {
+      $('#skinBtnName').textContent = tt().name;
+      $('#skinBtn').title = tr().tileStyle + ': ' + tt().name;
+    }
   }
+  // The style list opens from the button at the top left.
+  const skinsOpen = open => {
+    $('#skins').hidden = !open;
+    $('#skinBtn').setAttribute('aria-expanded', open);
+    if (open) $('.skin[aria-checked="true"]')?.focus();
+  };
+  $('#skinBtn').onclick = () => skinsOpen($('#skins').hidden);
+  document.addEventListener('click', e => { if (!$('#skins').hidden && !$('#skinMenu').contains(e.target)) skinsOpen(false); });
   function useTheme(id) {
     theme = THEMES.find(t => t.id === id) || THEMES[0];
     document.documentElement.dataset.skin = theme.id;
     store(SKIN, theme.id);
     retoast();
+    $('#skinBtnUse').setAttribute('href', `#${theme.id}-k-${theme.preview}`);
+    labelSkins();
     document.querySelectorAll('.skin').forEach(b => b.setAttribute('aria-checked', b.dataset.id === theme.id));
     if (S) render();
   }
@@ -693,7 +696,7 @@
       b.type = 'button'; b.className = 'skin'; b.dataset.id = t.id;
       b.setAttribute('role', 'radio');
       b.innerHTML = `<svg viewBox="0 0 40 53" aria-hidden="true"><use href="#${t.id}-k-${t.preview}"></use></svg><span></span>`;
-      b.onclick = () => useTheme(t.id);
+      b.onclick = () => { useTheme(t.id); skinsOpen(false); $('#skinBtn').focus(); };
       row.appendChild(b);
     });
     labelSkins();

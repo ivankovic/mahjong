@@ -472,91 +472,6 @@ function halloween() {
   };
 }
 
-/* ---------- Swiss Alps ---------- */
-
-function swiss() {
-  const O = '#2b2b33';
-  const s = { stroke: O, strokeWidth: 3.5, strokeLinejoin: 'round' };
-  const flag = R(8, 8, 84, 84, { rx: 10, fill: '#da291c', stroke: '#9e1b12', strokeWidth: 3 }) +
-    R(40, 22, 20, 56, { fill: '#fff' }) + R(22, 40, 56, 20, { fill: '#fff' });
-  const cheese = P('M8 86 L92 86 L92 12 Z', { fill: '#ffcf40', stroke: '#b98300', strokeWidth: 4, strokeLinejoin: 'round' }) +
-    E(72, 66, 8, 7, { fill: '#e0a400' }) + E(83, 38, 5, 5, { fill: '#e0a400' }) + E(48, 76, 6, 5, { fill: '#e0a400' }) + E(84, 76, 4, 3.5, { fill: '#e0a400' });
-  const bell = R(40, 4, 20, 16, { rx: 3, fill: '#c62828', ...s }) +
-    C(50, 86, 7, { fill: '#6d4c41', ...s }) +
-    P('M30 30 Q30 18 50 18 Q70 18 70 30 L80 80 H20 Z', { fill: '#e0b02a', ...s }) +
-    P('M25 62 H75', line('#9a7400', 3)) + P(starPath(50, 44, 9, 4, 4), { fill: '#fff' });
-
-  const eyes = (y = 46, x = 13) => C(50 - x, y, 5, { fill: O }) + C(50 + x, y, 5, { fill: O }) + C(51.5 - x, y - 1.5, 1.6, { fill: '#fff' }) + C(51.5 + x, y - 1.5, 1.6, { fill: '#fff' });
-  const cow = P('M30 26 Q18 22 16 8 M70 26 Q82 22 84 8', line('#f3e3c3', 7)) +
-    E(16, 40, 13, 7, { fill: '#fff', transform: 'rotate(-20 16 40)', ...s }) + E(84, 40, 13, 7, { fill: '#fff', transform: 'rotate(20 84 40)', ...s }) +
-    E(50, 52, 30, 34, { fill: '#fff', ...s }) +
-    P('M26 30 Q36 22 46 30 Q44 44 30 46 Q22 40 26 30 Z', { fill: '#9c4f2c' }) + P('M66 60 Q78 56 78 70 Q70 74 64 68 Z', { fill: '#9c4f2c' }) +
-    eyes(44) + E(50, 72, 22, 14, { fill: '#f8bbd0', ...s }) + E(42, 72, 3, 4, { fill: O }) + E(58, 72, 3, 4, { fill: O });
-  const bernard = E(17, 48, 11, 24, { fill: '#9c4f2c', transform: 'rotate(18 17 48)', ...s }) + E(83, 48, 11, 24, { fill: '#9c4f2c', transform: 'rotate(-18 83 48)', ...s }) +
-    E(50, 50, 32, 32, { fill: '#fff', ...s }) +
-    E(36, 42, 11, 10, { fill: '#9c4f2c' }) + E(64, 42, 11, 10, { fill: '#9c4f2c' }) + eyes(43, 14) +
-    E(50, 62, 16, 11, { fill: '#fff' }) + E(50, 56, 7, 5, { fill: O }) + P('M50 60 V65 M50 65 Q44 71 39 66 M50 65 Q56 71 61 66', line(O, 2.5)) +
-    R(38, 80, 24, 16, { rx: 5, fill: '#a1673b', ...s }) + P('M44 80 V96 M56 80 V96', line('#6d4321', 2.5)) + P('M28 80 Q50 88 72 80', line('#c62828', 4));
-  const marmot = C(24, 28, 8, { fill: '#8d6346', ...s }) + C(76, 28, 8, { fill: '#8d6346', ...s }) +
-    E(50, 54, 34, 34, { fill: '#a1785a', ...s }) + E(50, 70, 18, 13, { fill: '#e6cfb2' }) + eyes(46, 14) +
-    E(50, 62, 6, 4.5, { fill: O }) + R(45, 70, 10, 10, { rx: 1.5, fill: '#fff', stroke: O, strokeWidth: 1.5 }) + P('M50 70 V80', line(O, 1.2)) +
-    P('M32 66 L14 62 M32 70 L16 74 M68 66 L86 62 M68 70 L84 74', line('#5d4037', 1.6));
-  const ibex = P('M40 26 Q30 2 12 8 Q2 14 8 30', line('#8d7b68', 9)) + P('M60 26 Q70 2 88 8 Q98 14 92 30', line('#8d7b68', 9)) +
-    P('M34 12 l-4 6 M26 8 l-2 7 M18 9 l1 7 M66 12 l4 6 M74 8 l2 7 M82 9 l-1 7', line('#5d4f42', 2.5)) +
-    E(22, 40, 10, 6, { fill: '#a58e74', transform: 'rotate(-25 22 40)', ...s }) + E(78, 40, 10, 6, { fill: '#a58e74', transform: 'rotate(25 78 40)', ...s }) +
-    P('M30 34 Q50 20 70 34 Q74 64 50 84 Q26 64 30 34 Z', { fill: '#b59f84', ...s }) + eyes(46, 11) +
-    E(50, 72, 9, 6, { fill: '#5d4f42' }) + P('M46 82 Q50 96 54 82 Z', { fill: '#5d4f42' });
-  const matterhorn = R(4, 86, 92, 8, { fill: '#81c784' }) +
-    P('M6 88 L40 40 L50 12 L62 30 L70 26 L94 88 Z', { fill: '#90a4ae', ...s }) +
-    P('M40 40 L50 12 L62 30 L57 38 L51 32 L45 42 Z', { fill: '#fff' }) + P('M66 30 L70 26 L76 40 L70 36 Z', { fill: '#fff' });
-  const chalet = R(18, 46, 64, 44, { fill: '#b07445', ...s }) + P('M4 54 L50 14 L96 54 Z', { fill: '#7b4a2a', ...s }) +
-    P('M12 48 L50 16 L88 48 L80 48 L50 24 L20 48 Z', { fill: '#fff' }) +
-    R(28, 56, 14, 14, { fill: '#bbdefb', ...s, strokeWidth: 2.5 }) + R(58, 56, 14, 14, { fill: '#bbdefb', ...s, strokeWidth: 2.5 }) +
-    R(22, 56, 6, 14, { fill: '#c62828' }) + R(72, 56, 6, 14, { fill: '#c62828' }) +
-    R(26, 70, 18, 5, { fill: '#e53935' }) + R(56, 70, 18, 5, { fill: '#e53935' }) +
-    R(43, 74, 14, 16, { fill: '#5d3a1f' });
-  const train = P('M4 90 H96', line('#78909c', 4)) + P('M38 34 L50 18 L62 34', line(O, 3)) +
-    R(8, 34, 84, 44, { rx: 10, fill: '#d32f2f', ...s }) +
-    [16, 36, 56, 74].map(x => R(x, 42, 14, 14, { rx: 2, fill: '#bbdefb' })).join('') +
-    R(8, 62, 84, 6, { fill: '#fff' }) + C(26, 82, 7, { fill: '#37474f' }) + C(50, 82, 7, { fill: '#37474f' }) + C(74, 82, 7, { fill: '#37474f' });
-
-  const bloom = (n, petal, centre, rx, ry, edge = O) =>
-    Array.from({ length: n }, (_, i) => E(50, 50 - ry * .9, rx, ry, { fill: petal, stroke: edge, strokeWidth: 2.5, transform: `rotate(${r1(i * 360 / n)} 50 50)` })).join('') +
-    C(50, 50, rx * .9, { fill: centre, stroke: edge, strokeWidth: 2.5 });
-  const edelweiss = bloom(8, '#ffffff', '#ffe082', 8, 20, '#78909c') + C(44, 46, 3, { fill: '#e6c200' }) + C(56, 54, 3, { fill: '#e6c200' });
-  const gentian = P('M50 96 V64', line('#43a047', 5)) + E(36, 80, 12, 5, { fill: '#66bb6a', transform: 'rotate(-30 36 80)' }) + E(64, 80, 12, 5, { fill: '#66bb6a', transform: 'rotate(30 64 80)' }) +
-    P('M36 64 Q30 30 24 12 L38 20 L50 8 L62 20 L76 12 Q70 30 64 64 Z', { fill: '#1565c0', ...s }) + P('M42 60 Q46 40 50 24 Q54 40 58 60', line('#64b5f6', 3));
-  const alpenrose = P('M50 96 V70 M50 80 L30 70 M50 80 L70 72', line('#2e7d32', 4)) +
-    [[34, 40], [62, 34], [50, 60]].map(([x, y]) => place(bloom(5, '#ec407a', '#fff59d', 9, 14), x, y, 46)).join('');
-  const aster = bloom(12, '#9575cd', '#ffd54f', 6, 20);
-  const alphorn = P('M8 14 Q50 34 66 72', line('#8d5a2b', 11)) + P('M8 14 Q50 34 66 72', line('#c68a52', 4)) +
-    E(76, 82, 18, 10, { fill: '#8d5a2b', transform: 'rotate(-25 76 82)', ...s }) + E(76, 82, 9, 5, { fill: '#4e2f14', transform: 'rotate(-25 76 82)' }) +
-    P('M30 24 L28 32 M44 34 L40 40', line('#c62828', 4));
-  const sled = P('M8 74 H82 Q94 74 92 60', line('#455a64', 5)) + P('M26 58 V74 M66 58 V74', line('#455a64', 4)) +
-    R(14, 46, 66, 13, { rx: 4, fill: '#c62828', ...s }) + P('M24 52 H70', line('#ff8a80', 2.5));
-  const skis = P('M18 92 L78 8', line('#1e88e5', 9)) + P('M82 92 L22 8', line('#e53935', 9)) +
-    P('M30 56 L42 62 M70 56 L58 62', line('#263238', 4)) + P('M8 70 L36 30 M92 70 L64 30', line('#90a4ae', 2.5));
-  const gondola = P('M2 16 L98 28', line(O, 3)) + P('M50 22 V40', line(O, 3)) + C(50, 22, 4, { fill: O }) +
-    R(26, 40, 48, 44, { rx: 8, fill: '#d32f2f', ...s }) + R(32, 48, 16, 16, { rx: 2, fill: '#bbdefb' }) + R(52, 48, 16, 16, { rx: 2, fill: '#bbdefb' }) +
-    R(26, 70, 48, 5, { fill: '#fff' });
-  const snow = [0, 60, 120].map(a => G({ transform: `rotate(${a} 50 50)` },
-    P('M50 8 V92 M50 22 L41 13 M50 22 L59 13 M50 78 L41 87 M50 78 L59 87', line('#5aa9e6', 6)))).join('') + C(50, 50, 6, { fill: '#5aa9e6' });
-
-  return {
-    id: 'swiss', name: 'Swiss Alps', preview: 'wE',
-    fx: { snow, flag },
-    suits: { c: { name: 'Swiss flags', pic: flag, colour: '#c62828' }, b: { name: 'cheeses', pic: cheese, colour: '#b98300' }, d: { name: 'cowbells', pic: bell, colour: '#8d6e00' } },
-    honours: [
-      { name: 'Cow', pic: cow }, { name: 'St. Bernard', pic: bernard }, { name: 'Marmot', pic: marmot }, { name: 'Ibex', pic: ibex },
-      { name: 'Matterhorn', pic: matterhorn }, { name: 'Chalet', pic: chalet }, { name: 'Mountain train', pic: train },
-    ],
-    flowers: { group: 'alpine flower', colour: '#d81b60', items: [
-      { name: 'Edelweiss', pic: edelweiss }, { name: 'Gentian', pic: gentian }, { name: 'Alpine rose', pic: alpenrose }, { name: 'Aster', pic: aster }] },
-    seasons: { group: 'mountain fun tile', colour: '#1e88e5', items: [
-      { name: 'Alphorn', pic: alphorn }, { name: 'Sled', pic: sled }, { name: 'Skis', pic: skis }, { name: 'Gondola', pic: gondola }] },
-  };
-}
-
 /* ---------- Write the sprites and the list ---------- */
 
 const HEADER = `<!--
@@ -593,7 +508,7 @@ manifest.push({
   flowers: { group: 'flower', items: ['Plum', 'Orchid', 'Chrysanthemum', 'Bamboo'] },
   seasons: { group: 'season', items: ['Spring', 'Summer', 'Autumn', 'Winter'] },
 });
-for (const t of [dogs(), chameleons(), reef(), halloween(), swiss()]) {
+for (const t of [dogs(), chameleons(), reef(), halloween()]) {
   writeSprite(t.id, kidSet(t), t.fx);
   manifest.push({
     id: t.id, name: t.name, preview: t.preview, fx: Object.keys(t.fx),
