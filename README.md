@@ -84,18 +84,18 @@ tile are the `<style>-fx-*` symbols, and `FX` in `src/game.js` says how they mov
 
 ## The GIF above
 
-`docs/themes.gif` is made by `tools/demo-gif.mjs`, which opens the game from
+`docs/themes.gif` is made by `tools/demo_gif.py`, which opens the game from
 the working tree in a headless browser, deals the same game every time,
 photographs it in each style and crossfades between them. After changing a
 style, make it again:
 
 ```sh
-npm install
-npx playwright install chromium   # once
-npm run demo-gif
+uv run tools/demo_gif.py
 ```
 
-The game itself needs none of this; `package.json` is for this tool only.
+uv reads the script's dependencies from its header and the pinned versions
+from `tools/demo_gif.py.lock`; the first run also fetches the headless
+browser. The game itself needs none of this.
 
 ## Deployment
 

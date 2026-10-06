@@ -12,9 +12,7 @@ path = [
   "index.html",
   "README.md",
   ".github/**",
-  ".gitignore",
-  "package.json",
-  "package-lock.json",
+  "tools/demo_gif.py.lock",
 ]
 SPDX-FileCopyrightText = "2026 Marko Ivankovic"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
