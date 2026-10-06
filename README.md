@@ -10,7 +10,9 @@ English, German and Croatian.
 It comes with eight tile styles: Classic, and seven for kids: Dog Park,
 Cat Corner, Chameleon Jungle, Coral Reef, Enchanted Land, Mountain Trail and
 Haunted Night. Pick one from the button at
-the top left; the language switch is at the top right. The kids' styles keep the
+the top left; the same menu sets the background: plain, the style's
+own soft picture (a meadow, a jungle, a reef, a moonlit ridge and so on), or
+that picture with slow, calm motion. The language switch is at the top right. The kids' styles keep the
 structure of a real set. There are three suits of 1 to 9 pictures to count,
 each tile with its number at the top. There are seven single pictures in
 place of the winds and dragons, and two groups of four in place of the

@@ -59,6 +59,15 @@ def serve(route):
     route.fulfill(body=(ROOT / path.lstrip("/")).read_bytes(), content_type=TYPES[path.rsplit(".", 1)[1]])
 
 
+def settle(page):
+    """Wait until every web font the page now uses has arrived. Each style
+    asks for its own face only when it is shown, and the fonts come over the
+    network, so a fixed wait would sometimes catch the fallback font."""
+    page.wait_for_timeout(150)
+    page.evaluate("() => document.fonts.ready")
+    page.wait_for_timeout(250)
+
+
 def capture():
     with sync_playwright() as p:
         browser = p.chromium.launch()
@@ -85,7 +94,7 @@ def capture():
         }""")
         page.reload()
         page.wait_for_selector(".skin", state="attached")
-        page.wait_for_timeout(800)  # web fonts
+        settle(page)
 
         for _ in range(PAIRS):
             page.keyboard.press("h")
@@ -99,7 +108,7 @@ def capture():
             page.click(f'.skin[data-id="{style}"]')
             page.mouse.move(PAGE_W - 2, PAGE_H - 2)
             page.evaluate("() => { document.getElementById('toast').hidden = true; document.activeElement?.blur(); }")
-            page.wait_for_timeout(400)
+            settle(page)
             shots.append(Image.open(io.BytesIO(page.screenshot())).convert("RGB"))
             print("captured", style)
         browser.close()

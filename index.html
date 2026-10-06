@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="src/style.css">
 </head>
 <body>
+<div class="scene" id="scene" aria-hidden="true"></div>
 <div class="app">
   <header class="bar">
     <div class="skin-menu" id="skinMenu">
@@ -20,7 +21,13 @@
         <svg viewBox="0 0 40 53" aria-hidden="true"><use id="skinBtnUse"></use></svg>
         <span id="skinBtnName"></span><span class="caret" aria-hidden="true">▾</span>
       </button>
-      <div class="skins" id="skins" role="radiogroup" aria-label="Tile style" hidden></div>
+      <div class="skins" id="skins" hidden>
+        <div class="skin-list" id="skinList" role="radiogroup" aria-label="Tile style"></div>
+        <div class="bg-row">
+          <span id="bgLabel" data-i18n="background">Background</span>
+          <div class="bgs" id="bgs" role="radiogroup" aria-labelledby="bgLabel"></div>
+        </div>
+      </div>
     </div>
     <div class="actions">
       <button class="btn" id="hintBtn" type="button"><span data-i18n="hint">Hint</span><kbd>H</kbd></button>

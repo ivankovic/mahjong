@@ -125,7 +125,7 @@
     return { type: r < .75 ? 'helper' : 'mischief', at: 2 * (12 + (rng() * 30 | 0)), done: false, covered: [] };
   }
   const STORE = 'turtle-mahjong-game', BEST = 'turtle-mahjong-best', SHADE = 'turtle-mahjong-shade',
-    SKIN = 'turtle-mahjong-style', LANG = 'turtle-mahjong-lang';
+    SKIN = 'turtle-mahjong-style', LANG = 'turtle-mahjong-lang', BG = 'turtle-mahjong-background';
   const load = k => { try { return localStorage.getItem(k); } catch { return null; } };
   const store = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
   const valid = s => s && Array.isArray(s.faces) && s.faces.length === N && Array.isArray(s.present) && s.present.length === N;
@@ -634,7 +634,8 @@
     document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = tr()[el.dataset.i18n]; });
     $('#helpBtn').setAttribute('aria-label', tr().howTo);
     $('#helpBtn').title = tr().howTo;
-    $('#skins').setAttribute('aria-label', tr().tileStyle);
+    $('#skinList').setAttribute('aria-label', tr().tileStyle);
+    document.querySelectorAll('.bg').forEach(b => { b.textContent = tr()[BG_WORD[b.dataset.bg]]; });
     $('#langs').setAttribute('aria-label', tr().language);
     board.setAttribute('aria-label', tr().board);
     document.querySelectorAll('.lang').forEach(b => b.setAttribute('aria-checked', b.dataset.lang === lang));
@@ -669,6 +670,31 @@
   buildLangs();
   useLang(firstLang());
 
+  /* ---------- Background ---------- */
+  // Plain, the style's picture, or the picture with its slow motion. The
+  // picture is copied out of the sprite into the page, not referenced with
+  // <use>, so the page's animations reach its parts.
+  const BGS = ['plain', 'picture', 'moving'], BG_WORD = { plain: 'bgPlain', picture: 'bgPicture', moving: 'bgMoving' };
+  function useBg(bg) {
+    bg = BGS.includes(bg) ? bg : 'picture';
+    document.documentElement.dataset.bg = bg;
+    store(BG, bg);
+    document.querySelectorAll('.bg').forEach(b => b.setAttribute('aria-checked', b.dataset.bg === bg));
+  }
+  function drawScene() {
+    const sym = theme && document.getElementById(theme.id + '-scene');
+    $('#scene').innerHTML = sym ? `<svg viewBox="${sym.getAttribute('viewBox')}" preserveAspectRatio="xMidYMax slice">${sym.innerHTML}</svg>` : '';
+  }
+  BGS.forEach(bg => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'bg'; b.dataset.bg = bg;
+    b.setAttribute('role', 'radio');
+    b.textContent = tr()[BG_WORD[bg]];
+    b.onclick = () => useBg(bg);
+    $('#bgs').appendChild(b);
+  });
+  useBg(load(BG));
+
   /* ---------- Styles ---------- */
   function labelSkins() {
     document.querySelectorAll('.skin').forEach(b => {
@@ -693,12 +719,13 @@
     store(SKIN, theme.id);
     retoast();
     $('#skinBtnUse').setAttribute('href', `#${theme.id}-k-${theme.preview}`);
+    drawScene();
     labelSkins();
     document.querySelectorAll('.skin').forEach(b => b.setAttribute('aria-checked', b.dataset.id === theme.id));
     if (S) render();
   }
   function buildPicker() {
-    const row = $('#skins');
+    const row = $('#skinList');
     THEMES.forEach(t => {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'skin'; b.dataset.id = t.id;

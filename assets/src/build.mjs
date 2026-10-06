@@ -706,6 +706,110 @@ function mountain() {
   };
 }
 
+/* ---------- Background scenes ---------- */
+//
+// One soft picture per style, drawn on a 1600 x 1000 stage that the page fits
+// to the bottom of the window and crops at the sides. The page fades it, and
+// with "Moving" on it animates elements by class: drift (across, slowly),
+// rise (bubbles), sway / sway-top (rooted at the bottom / hung from the top),
+// bob, twinkle, shimmer and flap. --d sets a duration, --w a delay.
+
+const SW = 1600, SH = 1000;
+const land = (ys, smooth = true) => {
+  const step = SW / (ys.length - 1);
+  let d = `M0 ${ys[0]}`;
+  for (let i = 1; i < ys.length; i++) {
+    const x0 = (i - 1) * step, x1 = i * step;
+    d += smooth ? ` C${r1(x0 + step / 2)} ${ys[i - 1]} ${r1(x1 - step / 2)} ${ys[i]} ${r1(x1)} ${ys[i]}` : ` L${r1(x1)} ${ys[i]}`;
+  }
+  return d + ` V${SH} H0 Z`;
+};
+const puff = (x, y, s, fill) => E(x, y, 70 * s, 26 * s, { fill }) + C(x - 28 * s, y - 12 * s, 28 * s, { fill }) + C(x + 18 * s, y - 22 * s, 36 * s, { fill });
+const moves = (cls, d, w, ...kids) => G({ class: cls, style: `--d:${d}s;--w:${w}s` }, ...kids);
+// The same scattered points every build.
+const scatter = (n, seed, x0, x1, y0, y1) => {
+  let a = seed;
+  const rnd = () => { a = (a * 1103515245 + 12345) % 2147483648; return a / 2147483648; };
+  return Array.from({ length: n }, () => [r1(x0 + rnd() * (x1 - x0)), r1(y0 + rnd() * (y1 - y0)), rnd()]);
+};
+const stars = (n, seed, fill, y1 = 520) => scatter(n, seed, 20, 1580, 20, y1).map(([x, y, r], i) =>
+  moves('twinkle', r1(2.5 + r * 3), r1(-r * 4), C(x, y, r1(1.5 + r * 2.5), { fill }))).join('');
+const pine = (x, y, h, fill) => P(`M${x} ${y - h} L${x + h * .32} ${y - h * .4} H${x + h * .18} L${x + h * .4} ${y} H${x - h * .4} L${x - h * .18} ${y - h * .4} H${x - h * .32} Z`, { fill });
+
+const SCENES = {
+  classic: () => {
+    const v = (n, light) => `var(--sc-${n}, ${light})`;
+    return C(1150, 300, 95, { fill: v('sun', '#efc2b4') }) +
+      moves('drift', 240, -60, puff(300, 230, 1.6, v('cloud', '#eef4f0'))) + moves('drift', 300, -200, puff(1000, 170, 1.2, v('cloud', '#eef4f0'))) +
+      P(land([620, 470, 560, 410, 540, 450, 600, 430, 520, 600], false), { fill: v('far', '#c8d7ce') }) +
+      P(land([760, 650, 700, 600, 720, 640, 690, 610, 700, 680]), { fill: v('mid', '#b9cbbf') }) +
+      moves('drift', 360, -120, R(0, 690, 1600, 50, { rx: 25, fill: v('cloud', '#eef4f0'), opacity: .6 })) +
+      P(land([880, 820, 860, 800, 850, 830, 870, 810, 860, 840]), { fill: v('near', '#a9bfb2') }) +
+      [[260, 820, 90], [300, 830, 70], [1320, 812, 100], [1365, 825, 76]].map(([x, y, h]) => pine(x, y, h, v('near', '#a9bfb2'))).join('');
+  },
+  dogs: () => C(260, 200, 80, { fill: '#fff6c2' }) +
+    moves('drift', 220, -30, puff(700, 180, 1.5, '#ffffff')) + moves('drift', 260, -150, puff(1250, 250, 1.1, '#ffffff')) +
+    P(land([640, 560, 600, 540, 620, 580, 560, 610]), { fill: '#a9d58a' }) +
+    [[180, 600], [1300, 590], [1420, 610]].map(([x, y]) => R(x - 8, y - 10, 16, 60, { fill: '#a58a64' }) + C(x, y - 30, 48, { fill: '#86c066' }) + C(x - 30, y - 6, 34, { fill: '#86c066' }) + C(x + 30, y - 8, 34, { fill: '#86c066' })).join('') +
+    P(land([760, 720, 750, 700, 740, 720, 700]), { fill: '#9acd7a' }) +
+    P(land([880, 850, 870, 840, 860, 850]), { fill: '#8ac26a' }) +
+    Array.from({ length: 21 }, (_, i) => R(40 + i * 75, 800, 10, 60, { rx: 3, fill: '#fbf6ea' })).join('') +
+    R(30, 815, 1540, 8, { fill: '#fbf6ea' }) + R(30, 840, 1540, 8, { fill: '#fbf6ea' }),
+  cats: () => Array.from({ length: 17 }, (_, i) => R(i * 100, 0, 50, 760, { fill: '#f3d1bc' })).join('') +
+    R(560, 140, 480, 380, { rx: 14, fill: '#fff4ea' }) + R(585, 165, 430, 330, { fill: '#d6eaf2' }) + moves('drift', 200, -40, puff(800, 280, .9, '#ffffff')) +
+    R(585, 165, 430, 330, { fill: 'none', stroke: '#fff4ea', strokeWidth: 0 }) + R(795, 165, 10, 330, { fill: '#fff4ea' }) + R(585, 325, 430, 10, { fill: '#fff4ea' }) +
+    moves('sway-top', 9, -2, P('M540 120 Q600 330 560 540 H500 V120 Z', { fill: '#f2b3c0' })) + moves('sway-top', 9, -6, P('M1060 120 Q1000 330 1040 540 H1100 V120 Z', { fill: '#f2b3c0' })) +
+    R(480, 104, 640, 22, { rx: 11, fill: '#e6a9b5' }) +
+    R(140, 300, 260, 14, { fill: '#e2b69c' }) + [[160, 230, '#d99aa8'], [196, 240, '#a9c7e0'], [228, 220, '#e8c27a'], [262, 236, '#b9d8a8']].map(([x, y, c]) => R(x, y, 28, 300 - y, { rx: 4, fill: c })).join('') +
+    moves('sway-top', 7, -3, P('M1320 200 V300', line('#d8aa94', 4)), C(1320, 330, 40, { fill: '#c99a86' }), E(1290, 300, 22, 40, { fill: '#9fcf95', transform: 'rotate(-30 1290 300)' }), E(1350, 300, 22, 40, { fill: '#9fcf95', transform: 'rotate(30 1350 300)' })) +
+    R(0, 760, 1600, 240, { fill: '#efcab3' }) + E(800, 880, 520, 70, { fill: '#e9b8a2' }) + E(800, 880, 420, 50, { fill: '#efc6b2' }) +
+    scatter(10, 7, 80, 1520, 560, 980).map(([x, y, r], i) => moves('bob', r1(4 + r * 3), r1(-r * 5),
+      place(i % 2 ? P('M70 50 C48 34 54 12 70 24 C86 12 92 34 70 50 Z', { fill: '#f0b0bf' }) : E(50, 64, 21, 17, { fill: '#e9b9a6' }) + C(27, 40, 9, { fill: '#e9b9a6' }) + C(42, 26, 9, { fill: '#e9b9a6' }) + C(58, 26, 9, { fill: '#e9b9a6' }) + C(73, 40, 9, { fill: '#e9b9a6' }), x, y, 50))).join(''),
+  chameleons: () => [120, 420, 1180, 1480].map((x, i) => R(x - 26, 0, 52, 1000, { fill: i % 2 ? '#22653f' : '#236a42' })).join('') +
+    [[200, 0], [520, 0], [880, 0], [1250, 0]].map(([x], i) => moves('sway-top', 8 + i, -i * 2,
+      P(`M${x} 0 Q${x + 40} 160 ${x} 300 Q${x - 40} 420 ${x + 10} 520`, line('#357f50', 8)),
+      ...[90, 200, 320, 440].map((y, k) => E(x + (k % 2 ? 26 : -26), y, 26, 12, { fill: '#3a8a56', transform: `rotate(${k % 2 ? 30 : -30} ${x + (k % 2 ? 26 : -26)} ${y})` })))).join('') +
+    [[-40, 1000, 30], [1640, 1000, -30], [-60, 120, 150], [1660, 140, -150]].map(([x, y, a], i) => moves('sway', 10 + i, -i * 3,
+      G({ transform: `translate(${x} ${y}) rotate(${a})` },
+        P('M0 0 C-90 -120 -60 -330 0 -420 C60 -330 90 -120 0 0 Z', { fill: '#2f7f4d' }), P('M0 0 V-400', line('#286f43', 6)),
+        P('M60 20 C10 -90 40 -260 110 -330 C150 -250 150 -100 60 20 Z', { fill: '#388b59' })))).join('') +
+    scatter(18, 11, 60, 1540, 120, 900).map(([x, y, r]) => moves('twinkle', r1(2 + r * 3), r1(-r * 4), C(x, y, r1(3 + r * 3), { fill: '#f4f19c' }))).join(''),
+  reef: () => [[200, 260], [560, 200], [940, 280], [1300, 220]].map(([x, w], i) => moves('shimmer', 7 + i * 2, -i * 2,
+    P(`M${x} 0 H${x + w * .45} L${x + w + 160} 1000 H${x + 120} Z`, { fill: '#ffffff', opacity: .07 }))).join('') +
+    P(land([840, 800, 830, 780, 820, 800, 840, 790]), { fill: '#1a6a99' }) +
+    [[220, 800], [1380, 790]].map(([x, y]) => P(`M${x} ${y} V${y - 120} M${x} ${y - 70} L${x - 50} ${y - 140} M${x} ${y - 90} L${x + 46} ${y - 170} M${x - 50} ${y - 140} L${x - 70} ${y - 190}`, line('#2a76a4', 22))).join('') +
+    P(land([930, 900, 920, 890, 915, 900]), { fill: '#1f75a3' }) +
+    [100, 380, 660, 980, 1240, 1500].map((x, i) => moves('sway', 6 + i % 3, -i, P(`M${x} 1000 Q${x - 30} 880 ${x + 10} 780 Q${x + 40} 690 ${x} 600`, line('#1f8a86', 16)))).join('') +
+    scatter(4, 3, 100, 1500, 200, 600).map(([x, y], i) => moves('drift', 120 + i * 30, -i * 40, E(x, y, 34, 14, { fill: '#2a77a6' }), P(`M${x + 30} ${y} L${x + 56} ${y - 14} L${x + 56} ${y + 14} Z`, { fill: '#2a77a6' }))).join('') +
+    scatter(22, 5, 40, 1560, 300, 1000).map(([x, y, r]) => moves('rise', r1(16 + r * 16), r1(-r * 30), C(x, y, r1(6 + r * 12), { fill: 'none', stroke: '#cdeeff', strokeWidth: 3, opacity: .7 }))).join(''),
+  fantasy: () => ['#f6b0b8', '#f7cf9b', '#f4ec9c', '#b9e3b0', '#a9cdf0', '#c9b3ef'].map((c, i) => {
+    const r = 560 - i * 26; return P(`M${800 - r} 760 A${r} ${r} 0 0 1 ${800 + r} 760`, { fill: 'none', stroke: c, strokeWidth: 26, opacity: .45 });
+  }).join('') +
+    moves('drift', 260, -50, puff(380, 220, 1.4, '#f7f2ff')) + moves('drift', 300, -180, puff(1150, 160, 1.1, '#f7f2ff')) +
+    P(land([700, 640, 690, 620, 680, 640, 700]), { fill: '#d1c3f0' }) +
+    G({ fill: '#bfa9e6' }, R(1160, 470, 40, 180), R(1290, 470, 40, 180), R(1190, 520, 110, 130), R(1225, 430, 40, 100),
+      P('M1150 476 L1180 420 L1210 476 Z M1280 476 L1310 420 L1340 476 Z M1215 436 L1245 370 L1275 436 Z')) +
+    P(land([820, 780, 800, 760, 790, 770]), { fill: '#c6b5ec' }) + P(land([930, 900, 915, 890, 910]), { fill: '#baa6e6' }) +
+    scatter(16, 13, 40, 1560, 40, 600).map(([x, y, r]) => moves('twinkle', r1(2.5 + r * 3), r1(-r * 4), P(starPath(x, y, r1(8 + r * 10), r1(3 + r * 3), 4), { fill: '#ffffff' }))).join(''),
+  mountain: () => stars(60, 17, '#dfe8f0') +
+    C(1180, 220, 140, { fill: '#e9e1c4', opacity: .08 }) + C(1180, 220, 100, { fill: '#e9e1c4', opacity: .12 }) + C(1180, 220, 64, { fill: '#e9e1c4' }) +
+    moves('drift', 280, -90, E(600, 330, 260, 18, { fill: '#2a3e52' })) +
+    P(land([600, 420, 520, 360, 500, 440, 560, 400, 520, 580], false), { fill: '#24374a' }) +
+    P(land([760, 640, 700, 590, 690, 630, 700, 620, 720], false), { fill: '#1f3041' }) +
+    P(land([900, 850, 880, 830, 870, 850, 880]), { fill: '#172431' }) +
+    scatter(16, 19, 20, 1580, 850, 880).map(([x, y, r]) => pine(x, y, r1(60 + r * 70), '#131f29')).join(''),
+  halloween: () => stars(40, 23, '#d9ccf2', 460) +
+    C(1120, 260, 170, { fill: '#f1e4b8', opacity: .07 }) + C(1120, 260, 125, { fill: '#f1e4b8', opacity: .1 }) + C(1120, 260, 88, { fill: '#f1e4b8' }) +
+    scatter(6, 29, 200, 1400, 150, 420).map(([x, y], i) => moves('drift', 60 + i * 12, -i * 9, G({ class: 'flap', style: `--d:${.3 + i * .03}s;--w:0s` },
+      P(`M${x} ${y} q-14 -12 -30 -4 q8 6 6 14 q10 -6 24 -2 z M${x} ${y} q14 -12 30 -4 q-8 6 -6 14 q-10 -6 -24 -2 z`, { fill: '#120a20' })))).join('') +
+    P(land([720, 660, 700, 640, 690, 660, 710]), { fill: '#2a1c47' }) +
+    G({ fill: '#160d27' }, R(300, 470, 220, 200), P('M280 480 L410 380 L540 480 Z'), R(440, 410, 34, 70), R(340, 560, 40, 110)) +
+    [[330, 500], [460, 500], [400, 560]].map(([x, y], i) => moves('twinkle', 3 + i, -i, R(x, y, 26, 30, { fill: '#ffcf6b' }))).join('') +
+    P('M1380 720 V520 M1380 600 L1320 540 M1380 560 L1440 500 M1320 540 L1300 500 M1440 500 L1470 480 M1380 520 L1400 470', line('#160d27', 18)) +
+    P(land([850, 820, 840, 810, 835, 820]), { fill: '#221639' }) +
+    moves('drift', 200, -70, R(0, 830, 1600, 70, { rx: 35, fill: '#3a2b5c', opacity: .45 })),
+};
+
 /* ---------- Write the sprites and the list ---------- */
 
 const HEADER = `<!--
@@ -721,6 +825,7 @@ const writeSprite = (id, faces, fx = {}) => {
   const body = [
     ...Object.entries(faces).map(([f, svg]) => `  <symbol id="${id}-k-${f}" viewBox="0 0 40 53">${svg}</symbol>`),
     ...Object.entries(fx).map(([n, svg]) => `  <symbol id="${id}-fx-${n}" viewBox="0 0 100 100">${svg}</symbol>`),
+    `  <symbol id="${id}-scene" viewBox="0 0 ${SW} ${SH}" preserveAspectRatio="xMidYMax slice">${SCENES[id]()}</symbol>`,
   ].join('\n');
   writeFileSync(new URL(`${id}.svg`, OUT), `${HEADER}<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">\n<defs>\n${body}\n</defs>\n</svg>\n`);
 };
