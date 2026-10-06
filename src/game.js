@@ -183,7 +183,7 @@
           el.appendChild(c);
         }
         c.querySelector('use').setAttribute('href', ref);
-      }
+      } else el.querySelector('.cover')?.remove(); // uncover() renders once its pop-off has played
       const ref = '#' + theme.id + '-k-' + f;
       if (el._ref !== ref) {
         el.querySelector('use').setAttribute('href', ref);
