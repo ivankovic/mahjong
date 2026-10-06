@@ -239,6 +239,9 @@
     chameleons: { kind: 'fall', count: 3, aim: () => [(Math.random() - .5) * 3, 1.5 + Math.random() * 1.5] },
     reef: { kind: 'rise', count: 5, aim: () => [(Math.random() - .5) * 1.4, -(2 + Math.random() * 1.6)] },
     halloween: { kind: 'fly', count: 3, aim: () => [(Math.random() - .5) * 4, -(1 + Math.random() * 1.5)] },
+    cats: { kind: 'burst', count: 5, aim: () => { const a = Math.random() * 2 * Math.PI, d = 1.4 + Math.random(); return [Math.cos(a) * d, Math.sin(a) * d]; } },
+    fantasy: { kind: 'burst', count: 6, aim: () => { const a = Math.random() * 2 * Math.PI, d = 1.2 + Math.random() * 1.4; return [Math.cos(a) * d, Math.sin(a) * d]; } },
+    mountain: { kind: 'fall', count: 3, aim: () => [1 + Math.random() * 2, 1.2 + Math.random() * 1.5] },
   };
   const calm = matchMedia('(prefers-reduced-motion: reduce)');
   function leave(ids) {
@@ -277,6 +280,11 @@
       ['k-gR', 'rise', 8, 3], ['fx-leaf', 'rain', 22, 1.8], ['fx-ladybug', 'rain', 8, 1.5]],
     reef: [['fx-fish', 'swim', 24, 2], ['k-gR', 'swim', 2, 7], ['k-wE', 'rise', 3, 4], ['k-wN', 'rise', 3, 4], ['fx-bubble', 'rise', 36, 1.6]],
     halloween: [['fx-bat', 'swarm', 30, 2.6], ['k-wE', 'rise', 5, 4], ['fx-pumpkin', 'bounce', 8, 2.6]],
+    cats: [['k-wE', 'bounce', 2, 4.5], ['k-wS', 'bounce', 2, 4.5], ['k-wW', 'bounce', 2, 4.5], ['k-wN', 'bounce', 2, 4.5],
+      ['k-gG', 'swim', 8, 3], ['fx-paw', 'rain', 20, 1.6], ['fx-yarn', 'bounce', 6, 2.4]],
+    fantasy: [['k-wE', 'bounce', 3, 5], ['k-wS', 'swim', 3, 5], ['k-wW', 'rise', 5, 3.6], ['fx-star', 'rain', 24, 1.6], ['fx-sparkle', 'rise', 24, 1.4]],
+    mountain: [['k-wN', 'swim', 4, 5], ['k-wE', 'bounce', 2, 4.5], ['k-wS', 'bounce', 2, 4.5], ['k-wW', 'bounce', 2, 4.5],
+      ['fx-star', 'rain', 26, 1.2], ['fx-pinecone', 'bounce', 6, 2]],
   };
   let partyTimer = 0;
   function celebrate(then) {
@@ -381,8 +389,8 @@
   // Who comes to help, and what covers the tiles in mischief: the style's own
   // fx-* or k-* symbols. What the toasts say is in src/i18n.js.
   const EVENTS = {
-    helper: { classic: 'fx-lantern', dogs: 'k-wS', chameleons: 'k-wE', reef: 'k-wE', halloween: 'k-wE' },
-    mischief: { classic: 'fx-cloud', dogs: 'fx-paw', chameleons: 'fx-leaf', reef: 'fx-bubble', halloween: 'fx-web' },
+    helper: { classic: 'fx-lantern', dogs: 'k-wS', chameleons: 'k-wE', reef: 'k-wE', halloween: 'k-wE', cats: 'k-wE', fantasy: 'k-wS', mountain: 'k-wN' },
+    mischief: { classic: 'fx-cloud', dogs: 'fx-paw', chameleons: 'fx-leaf', reef: 'fx-bubble', halloween: 'fx-web', cats: 'fx-yarn', fantasy: 'fx-dust', mountain: 'fx-fog' },
   };
 
   let toastTimer = 0;

@@ -83,6 +83,47 @@
     }
   },
   {
+    "id": "cats",
+    "name": "Cat Corner",
+    "preview": "wE",
+    "fx": [
+      "paw",
+      "yarn"
+    ],
+    "suits": {
+      "c": "balls of yarn",
+      "b": "fish bones",
+      "d": "cat paws"
+    },
+    "honours": [
+      "Ginger cat",
+      "Black cat",
+      "Grey cat",
+      "Calico cat",
+      "Cardboard box",
+      "Toy mouse",
+      "Fishbowl"
+    ],
+    "flowers": {
+      "group": "cat toy",
+      "items": [
+        "Feather wand",
+        "Jingle ball",
+        "Catnip",
+        "Scratching post"
+      ]
+    },
+    "seasons": {
+      "group": "treat",
+      "items": [
+        "Milk",
+        "Tuna",
+        "Shrimp",
+        "Paw cookie"
+      ]
+    }
+  },
+  {
     "id": "chameleons",
     "name": "Chameleon Jungle",
     "preview": "wS",
@@ -161,6 +202,90 @@
         "Anchor",
         "Crown",
         "Pearl"
+      ]
+    }
+  },
+  {
+    "id": "fantasy",
+    "name": "Enchanted Land",
+    "preview": "wE",
+    "fx": [
+      "star",
+      "sparkle",
+      "dust"
+    ],
+    "suits": {
+      "c": "stars",
+      "b": "gems",
+      "d": "potions"
+    },
+    "honours": [
+      "Unicorn",
+      "Dragon",
+      "Fairy",
+      "Gnome",
+      "Castle",
+      "Crystal ball",
+      "Spell book"
+    ],
+    "flowers": {
+      "group": "magic mushroom",
+      "items": [
+        "Red mushroom",
+        "Blue mushroom",
+        "Purple mushroom",
+        "Golden mushroom"
+      ]
+    },
+    "seasons": {
+      "group": "magic wand",
+      "items": [
+        "Star wand",
+        "Heart wand",
+        "Moon wand",
+        "Flower wand"
+      ]
+    }
+  },
+  {
+    "id": "mountain",
+    "name": "Mountain Trail",
+    "preview": "wE",
+    "fx": [
+      "pinecone",
+      "star",
+      "fog"
+    ],
+    "suits": {
+      "c": "pine trees",
+      "b": "mountains",
+      "d": "campfires"
+    },
+    "honours": [
+      "Bear",
+      "Fox",
+      "Deer",
+      "Eagle",
+      "Tent",
+      "Log cabin",
+      "Canoe"
+    ],
+    "flowers": {
+      "group": "wildflower",
+      "items": [
+        "Lupine",
+        "Buttercup",
+        "Forget-me-not",
+        "Poppy"
+      ]
+    },
+    "seasons": {
+      "group": "hiking gear",
+      "items": [
+        "Backpack",
+        "Compass",
+        "Lantern",
+        "Map"
       ]
     }
   },

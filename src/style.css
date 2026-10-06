@@ -162,6 +162,9 @@ body {
 :root[data-skin="chameleons"] { --cover-bg: #b9e4a5; }
 :root[data-skin="reef"] { --cover-bg: #9fdcf3; }
 :root[data-skin="halloween"] { --cover-bg: #3a2a55; }
+:root[data-skin="cats"] { --cover-bg: #fde4ee; }
+:root[data-skin="fantasy"] { --cover-bg: #f6efff; }
+:root[data-skin="mountain"] { --cover-bg: #dfe6ec; }
 .helper { position: absolute; left: 0; top: 0; z-index: 8100; pointer-events: none; }
 .helper svg { display: block; width: 100%; height: 100%; overflow: visible; animation: party-wiggle .3s ease-in-out infinite alternate; }
 
@@ -295,7 +298,8 @@ body {
 
 /* Styles. Each is one look whatever the system theme, so every token is set
    here, and these come after the dark-mode blocks so they win over them. */
-:root[data-skin="dogs"], :root[data-skin="chameleons"], :root[data-skin="reef"], :root[data-skin="halloween"] {
+:root[data-skin="dogs"], :root[data-skin="chameleons"], :root[data-skin="reef"], :root[data-skin="halloween"],
+:root[data-skin="cats"], :root[data-skin="fantasy"], :root[data-skin="mountain"] {
   --f-display: "Fredoka", "Trebuchet MS", sans-serif;
   --f-ui: "Fredoka", "Trebuchet MS", sans-serif;
   --display-weight: 700;
@@ -358,3 +362,63 @@ body {
   100% { opacity: 0; filter: blur(6px) brightness(1.8); transform: translateY(-40%) scale(1.25) skewX(-8deg); }
 }
 
+
+/* Cat Corner: a warm, cosy room; tiles pounce away. */
+:root[data-skin="cats"] {
+  --table: #f6d9c4; --felt: #fdeee3; --ink: #4a2f3a; --muted: #7d5a66; --accent: #e0567f;
+  --panel: #fffaf6; --btn: #fffdfb; --btn-line: #e2b9a6; --seal-ink: #fff;
+  --shade: rgba(90, 50, 40, .28); --sel: #ffe08a; --hint: #7e57c2; --tile-shadow: rgba(120, 70, 50, .35);
+  --bone: #fffaf3; --bone-edge: #ecdcc8; --jade: #9c6ade; --jade-deep: #6f42b8; --on-jade: #fff;
+  color-scheme: light;
+}
+:root[data-skin="cats"] .tile.out.leaving { animation: leave-pounce .7s cubic-bezier(.3, .5, .4, 1) forwards; }
+@keyframes leave-pounce {
+  0% { opacity: 1; transform: none; }
+  25% { opacity: 1; transform: translateY(6%) scale(1.06, .88); }
+  60% { opacity: 1; transform: translate(-25%, -45%) rotate(-25deg) scale(.9); }
+  100% { opacity: 0; transform: translate(-60%, -10%) rotate(-80deg) scale(.4); }
+}
+
+/* Enchanted Land: lavender with scattered sparkles; tiles twirl away in a puff of magic. */
+:root[data-skin="fantasy"] {
+  --table: #ddd2f4; --felt: #f3edff; --ink: #2e1f47; --muted: #5f4d80; --accent: #d81b60;
+  --panel: #fffaff; --btn: #fffbff; --btn-line: #bfaee0; --seal-ink: #fff;
+  --shade: rgba(50, 30, 90, .30); --sel: #fff176; --hint: #00acc1; --tile-shadow: rgba(70, 40, 120, .35);
+  --bone: #fffdf7; --bone-edge: #e8dcc6; --jade: #e0a526; --jade-deep: #b07d0c; --on-jade: #2e1f47;
+  color-scheme: light;
+}
+:root[data-skin="fantasy"] body {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cg fill='%23ffffff' opacity='.75'%3E%3Cpath d='M30 20l2 7 7 2-7 2-2 7-2-7-7-2 7-2z'/%3E%3Cpath d='M120 60l1.5 5 5 1.5-5 1.5-1.5 5-1.5-5-5-1.5 5-1.5z'/%3E%3Cpath d='M70 120l2 6 6 2-6 2-2 6-2-6-6-2 6-2z'/%3E%3Ccircle cx='140' cy='130' r='2'/%3E%3Ccircle cx='90' cy='30' r='1.5'/%3E%3Ccircle cx='20' cy='90' r='1.5'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(ellipse 70% 60% at 50% 45%, var(--felt), transparent 75%);
+  background-size: 160px 160px, auto;
+}
+:root[data-skin="fantasy"] .tile.out.leaving { animation: leave-twirl .8s ease-in forwards; }
+@keyframes leave-twirl {
+  0% { opacity: 1; filter: none; transform: none; }
+  35% { opacity: 1; filter: brightness(1.25) drop-shadow(0 0 8px #e1bee7); transform: scale(1.1) rotate(-12deg); }
+  100% { opacity: 0; filter: brightness(1.6) drop-shadow(0 0 12px #fff59d); transform: scale(0) rotate(300deg); }
+}
+
+/* Mountain Trail: dusk, with ridges along the bottom; a gust of wind carries tiles away. */
+:root[data-skin="mountain"] {
+  --table: #1b2836; --felt: #2c4359; --ink: #eaf2f8; --muted: #a9bccb; --accent: #ffa726;
+  --panel: #1f3040; --btn: #223547; --btn-line: #3d5a73; --seal-ink: #1b2836;
+  --shade: rgba(0, 0, 0, .42); --sel: #ffe08a; --hint: #4fc3f7; --tile-shadow: rgba(0, 0, 0, .55);
+  --bone: #fbf6ea; --bone-edge: #d9cfba; --jade: #3e8e6a; --jade-deep: #24624a; --on-jade: #fff;
+  color-scheme: dark;
+}
+:root[data-skin="mountain"] body {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 120'%3E%3Cpath d='M0 120V70L50 34L84 58L140 18L196 66L250 30L308 72L352 44L400 70V120Z' fill='%23263a4e'/%3E%3Cpath d='M0 120V96L60 70L110 88L170 60L230 92L290 68L350 90L400 96V120Z' fill='%23162330'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 70% 60% at 50% 40%, var(--felt), transparent 75%);
+  background-repeat: repeat-x, no-repeat;
+  background-position: bottom, center;
+  background-size: 720px auto, auto;
+}
+:root[data-skin="mountain"] .tile.out.leaving { animation: leave-gust .85s cubic-bezier(.5, 0, .9, .5) forwards; }
+@keyframes leave-gust {
+  0% { opacity: 1; transform: none; }
+  30% { opacity: 1; transform: translate(-5%, -8%) rotate(-6deg); }
+  100% { opacity: 0; transform: translate(90%, -50%) rotate(35deg) scale(.6); }
+}

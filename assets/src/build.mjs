@@ -472,6 +472,240 @@ function halloween() {
   };
 }
 
+/* ---------- Shared by the newer styles ---------- */
+
+// A flower of n petals round a centre, in the 100 x 100 box.
+const bloom = (n, petal, centre, rx, ry, edge) =>
+  Array.from({ length: n }, (_, i) => E(50, 50 - ry * .9, rx, ry, { fill: petal, stroke: edge, strokeWidth: 2.5, transform: `rotate(${r1(i * 360 / n)} 50 50)` })).join('') +
+  C(50, 50, rx * .9, { fill: centre, stroke: edge, strokeWidth: 2.5 });
+
+/* ---------- Cat Corner ---------- */
+
+function cats() {
+  const O = '#3d2c3e';
+  const s = { stroke: O, strokeWidth: 3.5, strokeLinejoin: 'round' };
+  const yarn = P('M80 72 Q96 82 86 96', line('#ec6f9b', 4)) + C(50, 52, 36, { fill: '#ec6f9b', ...s }) +
+    P('M22 34 Q50 50 30 82 M34 20 Q64 44 52 88 M60 18 Q82 46 78 74 M16 54 Q50 40 84 50', line('#b83b6c', 3));
+  const fishbone = P('M8 34 L30 50 L8 66 Z', { fill: '#8fa3b8', ...s }) + P('M28 50 H72', line('#8fa3b8', 5)) +
+    [38, 50, 62].map(x => P(`M${x} 34 Q${x + 5} 50 ${x} 66`, line('#8fa3b8', 4))).join('') +
+    C(80, 50, 14, { fill: '#8fa3b8', ...s }) + C(84, 46, 3, { fill: O });
+  const pink = { fill: '#f48fb1', stroke: '#c2185b', strokeWidth: 3 };
+  const paw = E(50, 64, 21, 17, pink) + E(27, 40, 8.5, 10, pink) + E(42, 26, 8.5, 10, pink) + E(58, 26, 8.5, 10, pink) + E(73, 40, 8.5, 10, pink);
+
+  const cat = ({ fur, marks = '', eye = '#8bc34a', muzzle = fur, whisker = O }) =>
+    P('M16 50 L20 8 L46 28 Z', { fill: fur, ...s }) + P('M84 50 L80 8 L54 28 Z', { fill: fur, ...s }) +
+    P('M24 34 L25 18 L38 28 Z', { fill: '#f8bbd0' }) + P('M76 34 L75 18 L62 28 Z', { fill: '#f8bbd0' }) +
+    E(50, 56, 36, 32, { fill: fur, ...s }) + marks + E(50, 70, 17, 12, { fill: muzzle }) +
+    E(35, 52, 7, 8.5, { fill: eye, stroke: O, strokeWidth: 2 }) + E(65, 52, 7, 8.5, { fill: eye, stroke: O, strokeWidth: 2 }) +
+    E(35, 52, 2.4, 7, { fill: '#1b1b1b' }) + E(65, 52, 2.4, 7, { fill: '#1b1b1b' }) +
+    P('M45 63 H55 L50 69 Z', { fill: '#f06292' }) + P('M50 69 Q46 75 41 72 M50 69 Q54 75 59 72', line(whisker, 2.4)) +
+    P('M30 66 L8 62 M30 71 L10 76 M70 66 L92 62 M70 71 L90 76', line(whisker, 1.8));
+  const ginger = cat({ fur: '#f0a04b', muzzle: '#fbe0bf',
+    marks: P('M40 26 L42 36 M50 24 V36 M60 26 L58 36', line('#c86f1d', 4)) + P('M15 54 H25 M16 62 H25 M85 54 H75 M84 62 H75', line('#c86f1d', 3)) });
+  const black = cat({ fur: '#3a3342', eye: '#fdd835', whisker: '#d7ccc8' });
+  const grey = cat({ fur: '#9aa3ad', muzzle: '#eceff1', eye: '#4fc3f7' });
+  const calico = cat({ fur: '#ffffff', eye: '#ffb300',
+    marks: P('M18 44 Q24 28 42 30 Q42 44 26 52 Z', { fill: '#f0a04b' }) + P('M58 28 Q76 28 84 46 Q70 50 60 40 Z', { fill: '#3a3342' }) });
+  const box = P('M32 44 L36 22 L48 36 Z', { fill: '#9aa3ad', ...s }) + P('M68 44 L64 22 L52 36 Z', { fill: '#9aa3ad', ...s }) +
+    E(50, 48, 22, 14, { fill: '#9aa3ad', ...s }) + C(42, 42, 3.5, { fill: O }) + C(58, 42, 3.5, { fill: O }) +
+    P('M14 46 L4 32 L30 32 L36 46 Z', { fill: '#e0b47c', ...s }) + P('M86 46 L96 32 L70 32 L64 46 Z', { fill: '#e0b47c', ...s }) +
+    R(14, 46, 72, 44, { fill: '#d2a46a', ...s }) + R(44, 46, 12, 44, { fill: '#e8cfa0' });
+  const mouse = P('M78 62 Q96 60 92 80 Q88 94 74 88', line('#f48fb1', 3)) +
+    E(52, 60, 30, 20, { fill: '#9e9e9e', ...s }) + C(42, 40, 10, { fill: '#bdbdbd', ...s }) + C(42, 40, 5, { fill: '#f8bbd0' }) +
+    C(32, 54, 3, { fill: O }) + C(22, 62, 4, { fill: '#f48fb1' }) + P('M26 64 L12 60 M26 67 L13 70', line(O, 1.5));
+  const fishy = E(46, 0, 12, 8, { fill: '#ff8a1f' }) + P('M56 0 L66 -7 L66 7 Z', { fill: '#ff8a1f' }) + C(40, -2, 1.8, { fill: O });
+  const bowl = P('M32 22 Q4 40 14 72 Q26 94 50 94 Q74 94 86 72 Q96 40 68 22 Z', { fill: '#b3e5fc', stroke: '#4fa3d6', strokeWidth: 3.5 }) +
+    P('M16 40 Q50 48 84 40', line('#e1f5fe', 3)) + E(50, 22, 19, 5, { fill: 'none', stroke: '#4fa3d6', strokeWidth: 3.5 }) +
+    G({ transform: 'translate(0 62)' }, fishy) + C(30, 86, 4, { fill: '#a1887f' }) + C(40, 88, 3.5, { fill: '#8d6e63' }) + C(64, 87, 4, { fill: '#a1887f' }) +
+    C(66, 44, 3, { fill: '#fff', opacity: .8 }) + C(72, 36, 2, { fill: '#fff', opacity: .8 });
+
+  const feather = P('M14 90 L60 32', line('#8d6e63', 5)) + P('M60 32 Q66 26 68 20', line(O, 1.5)) +
+    E(70, 18, 7, 18, { fill: '#4fc3f7', transform: 'rotate(30 70 18)', ...s, strokeWidth: 2 }) +
+    E(80, 28, 6, 16, { fill: '#ffca28', transform: 'rotate(65 80 28)', ...s, strokeWidth: 2 }) +
+    E(62, 14, 5, 14, { fill: '#e57373', transform: 'rotate(-10 62 14)', ...s, strokeWidth: 2 });
+  const jingle = C(50, 54, 34, { fill: '#e53935', ...s }) + C(50, 54, 12, { fill: '#ffd54f', stroke: '#c79a00', strokeWidth: 2.5 }) +
+    P('M20 40 Q50 30 80 40 M18 64 Q50 78 82 64 M34 24 Q28 54 36 86 M66 24 Q72 54 64 86', line('#b71c1c', 3)) + C(42, 38, 4, { fill: '#ffcdd2' });
+  const catnip = P('M30 64 H70 L64 92 H36 Z', { fill: '#d4794a', ...s }) +
+    P('M50 64 V30 M50 48 L32 34 M50 42 L68 26', line('#2e7d32', 3.5)) +
+    [[50, 22, 0], [30, 30, -40], [70, 22, 40], [36, 46, -60], [64, 40, 60]].map(([x, y, a]) =>
+      E(x, y, 9, 13, { fill: '#66bb6a', stroke: '#2e7d32', strokeWidth: 2.5, transform: `rotate(${a} ${x} ${y})` })).join('');
+  const post = R(16, 84, 68, 10, { rx: 3, fill: '#a1887f', ...s }) + R(40, 24, 20, 62, { fill: '#d7b98a', ...s }) +
+    P('M40 34 L60 30 M40 46 L60 42 M40 58 L60 54 M40 70 L60 66 M40 82 L60 78', line('#a1887f', 2.5)) +
+    R(24, 14, 52, 11, { rx: 3, fill: '#8d6e63', ...s }) + P('M70 25 V40', line(O, 1.5)) + C(70, 46, 6, { fill: '#e53935', ...s, strokeWidth: 2 });
+  const milk = R(38, 12, 24, 16, { fill: '#ffffff', ...s }) + R(36, 6, 28, 9, { rx: 3, fill: '#42a5f5', ...s }) +
+    R(28, 26, 44, 66, { rx: 12, fill: '#ffffff', ...s }) + R(28, 50, 44, 20, { fill: '#90caf9' }) + place(paw, 50, 60, 16);
+  const tuna = E(50, 78, 34, 10, { fill: '#90a4ae', ...s }) + R(16, 34, 68, 44, { fill: '#64b5f6', ...s }) +
+    E(50, 34, 34, 10, { fill: '#cfd8dc', ...s }) + E(50, 34, 26, 6, { fill: 'none', stroke: '#90a4ae', strokeWidth: 2 }) +
+    G({ transform: 'translate(4 58)' }, fishy);
+  const shrimp = P('M76 26 Q40 14 26 44 Q18 70 44 80', line('#ff8a65', 18)) + P('M76 26 Q40 14 26 44 Q18 70 44 80', line('#ffab91', 7)) +
+    P('M44 80 L58 70 L58 90 Z', { fill: '#ff7043', stroke: '#d84315', strokeWidth: 2.5, strokeLinejoin: 'round' }) +
+    P('M54 20 L50 36 M34 30 L44 40 M24 50 L38 52 M28 66 L40 62', line('#d84315', 2.5)) +
+    C(72, 24, 3, { fill: O }) + P('M78 22 Q92 10 96 18 M80 26 Q94 22 96 30', line('#d84315', 1.8));
+  const cookie = C(50, 50, 38, { fill: '#d7a86e', ...s }) + place(paw.replace(/#f48fb1/g, '#6d4c41').replace(/#c2185b/g, '#4e342e'), 50, 52, 52) +
+    C(26, 34, 2.5, { fill: '#a1743f' }) + C(76, 66, 2.5, { fill: '#a1743f' }) + C(30, 72, 2, { fill: '#a1743f' });
+
+  return {
+    id: 'cats', name: 'Cat Corner', preview: 'wE',
+    fx: { paw, yarn },
+    suits: { c: { name: 'balls of yarn', pic: yarn, colour: '#b83b6c' }, b: { name: 'fish bones', pic: fishbone, colour: '#546e7a' }, d: { name: 'cat paws', pic: paw, colour: '#c2185b' } },
+    honours: [
+      { name: 'Ginger cat', pic: ginger }, { name: 'Black cat', pic: black }, { name: 'Grey cat', pic: grey }, { name: 'Calico cat', pic: calico },
+      { name: 'Cardboard box', pic: box }, { name: 'Toy mouse', pic: mouse }, { name: 'Fishbowl', pic: bowl },
+    ],
+    flowers: { group: 'cat toy', colour: '#8e24aa', items: [
+      { name: 'Feather wand', pic: feather }, { name: 'Jingle ball', pic: jingle }, { name: 'Catnip', pic: catnip }, { name: 'Scratching post', pic: post }] },
+    seasons: { group: 'treat', colour: '#ef6c00', items: [
+      { name: 'Milk', pic: milk }, { name: 'Tuna', pic: tuna }, { name: 'Shrimp', pic: shrimp }, { name: 'Paw cookie', pic: cookie }] },
+  };
+}
+
+/* ---------- Enchanted Land ---------- */
+
+function fantasy() {
+  const O = '#3b2752';
+  const s = { stroke: O, strokeWidth: 3.5, strokeLinejoin: 'round' };
+  const starPip = P(starPath(50, 54, 44, 19), { fill: '#ffd54f', stroke: '#c79a00', strokeWidth: 4, strokeLinejoin: 'round' }) + C(42, 46, 4, { fill: '#fff8e1' });
+  const gem = P('M18 38 L34 14 H66 L82 38 L50 88 Z', { fill: '#4fc3f7', stroke: '#1565c0', strokeWidth: 4, strokeLinejoin: 'round' }) +
+    P('M18 38 H82 M34 14 L42 38 L50 88 M66 14 L58 38 L50 88 M42 38 L50 14 L58 38', line('#1565c0', 2.5)) + P('M28 32 L34 24', line('#e1f5fe', 4));
+  const potion = R(40, 14, 20, 22, { fill: '#e1bee7', ...s }) + R(37, 6, 26, 11, { rx: 3, fill: '#a1887f', ...s }) +
+    C(50, 62, 30, { fill: '#f3e5f5', ...s }) + P('M23 66 Q50 56 77 66 A27 27 0 0 1 23 66 Z', { fill: '#ab47bc' }) +
+    C(42, 76, 3, { fill: '#e1bee7' }) + C(56, 70, 2.5, { fill: '#e1bee7' }) + E(38, 50, 4, 7, { fill: '#fff', opacity: .8 });
+  const sparkle = P(starPath(50, 50, 46, 10, 4), { fill: '#fff59d', stroke: '#f9a825', strokeWidth: 2, strokeLinejoin: 'round' });
+
+  const unicorn = P('M60 24 Q88 26 90 56 Q92 76 84 92', line('#f48fb1', 9)) + P('M62 32 Q84 40 82 66', line('#81d4fa', 8)) +
+    P('M58 30 Q72 44 74 72', line('#ce93d8', 8)) +
+    P('M36 30 Q46 20 60 24 Q76 30 76 56 L80 92 H44 L48 70 Q30 72 22 64 Q14 56 20 46 Q26 38 36 30 Z', { fill: '#ffffff', ...s }) +
+    P('M40 30 L32 2 L48 26 Z', { fill: '#ffd54f', stroke: '#c79a00', strokeWidth: 2.5, strokeLinejoin: 'round' }) +
+    P('M37 18 L44 16 M35 11 L41 9', line('#c79a00', 1.8)) +
+    P('M54 26 L58 10 L64 26 Z', { fill: '#ffffff', ...s }) + P('M44 26 Q52 16 60 22', line('#f48fb1', 6)) +
+    C(42, 44, 4.5, { fill: O }) + C(43.5, 42.5, 1.5, { fill: '#fff' }) + E(24, 58, 2.5, 2, { fill: O }) + E(34, 56, 6, 3.5, { fill: '#f8bbd0' });
+  const dragon = P('M18 44 L2 20 L28 32 Z', { fill: '#43a047', ...s }) + P('M82 44 L98 20 L72 32 Z', { fill: '#43a047', ...s }) +
+    P('M32 26 L28 8 L42 22 Z', { fill: '#fff59d', ...s }) + P('M68 26 L72 8 L58 22 Z', { fill: '#fff59d', ...s }) +
+    E(50, 52, 34, 30, { fill: '#66bb6a', ...s }) + E(50, 72, 22, 15, { fill: '#a5d6a7', ...s }) +
+    C(37, 46, 8, { fill: '#fff', ...s, strokeWidth: 2.5 }) + C(63, 46, 8, { fill: '#fff', ...s, strokeWidth: 2.5 }) +
+    C(38, 47, 4, { fill: O }) + C(62, 47, 4, { fill: O }) + E(43, 66, 2.5, 2, { fill: O }) + E(57, 66, 2.5, 2, { fill: O }) +
+    P('M38 76 Q50 86 62 76', line(O, 3)) + P('M44 78 L46 83 L48 79 Z M56 78 L54 83 L52 79 Z', { fill: '#fff' }) +
+    P('M44 24 Q50 30 56 24', line('#2e7d32', 3));
+  const fairy = E(30, 42, 16, 24, { fill: '#b3e5fc', stroke: '#4fc3f7', strokeWidth: 2, transform: 'rotate(-25 30 42)', opacity: .9 }) +
+    E(70, 42, 16, 24, { fill: '#b3e5fc', stroke: '#4fc3f7', strokeWidth: 2, transform: 'rotate(25 70 42)', opacity: .9 }) +
+    E(34, 66, 10, 14, { fill: '#e1bee7', stroke: '#ba68c8', strokeWidth: 2, transform: 'rotate(25 34 66)', opacity: .9 }) +
+    E(66, 66, 10, 14, { fill: '#e1bee7', stroke: '#ba68c8', strokeWidth: 2, transform: 'rotate(-25 66 66)', opacity: .9 }) +
+    P('M50 46 L32 90 H68 Z', { fill: '#f48fb1', ...s }) + C(50, 34, 13, { fill: '#ffe0b2', ...s }) +
+    P('M37 33 Q38 16 50 18 Q63 16 64 33 Q58 24 50 26 Q42 24 37 33 Z', { fill: '#ffb74d', stroke: O, strokeWidth: 2 }) +
+    C(45, 36, 2, { fill: O }) + C(55, 36, 2, { fill: O }) + P('M46 41 Q50 44 54 41', line(O, 2)) +
+    P('M62 62 L82 44', line('#8d6e63', 3)) + P(starPath(84, 42, 9, 4), { fill: '#ffd54f', stroke: '#c79a00', strokeWidth: 1.5 });
+  const gnome = R(32, 64, 36, 28, { rx: 9, fill: '#1e88e5', ...s }) + C(50, 54, 14, { fill: '#ffe0b2', ...s }) +
+    P('M34 56 Q34 88 50 94 Q66 88 66 56 Q50 68 34 56 Z', { fill: '#fafafa', ...s }) +
+    P('M28 50 L54 4 L72 50 Z', { fill: '#e53935', ...s }) + C(50, 58, 6, { fill: '#ffab91', ...s, strokeWidth: 2 }) +
+    C(43, 51.5, 2.2, { fill: O }) + C(57, 51.5, 2.2, { fill: O });
+  const castle = R(12, 40, 20, 52, { fill: '#ce93d8', ...s }) + R(68, 40, 20, 52, { fill: '#ce93d8', ...s }) +
+    R(28, 54, 44, 38, { fill: '#e1bee7', ...s }) + R(40, 30, 20, 30, { fill: '#ce93d8', ...s }) +
+    P('M8 42 L22 14 L36 42 Z', { fill: '#7e57c2', ...s }) + P('M64 42 L78 14 L92 42 Z', { fill: '#7e57c2', ...s }) + P('M36 32 L50 4 L64 32 Z', { fill: '#7e57c2', ...s }) +
+    P('M42 92 V76 A8 8 0 0 1 58 76 V92 Z', { fill: '#5e35b1' }) + R(18, 54, 8, 10, { rx: 4, fill: '#fff59d' }) + R(74, 54, 8, 10, { rx: 4, fill: '#fff59d' }) +
+    R(46, 40, 8, 10, { rx: 4, fill: '#fff59d' });
+  const ball = P('M28 90 L36 74 H64 L72 90 Z', { fill: '#8d6e63', ...s }) + C(50, 46, 30, { fill: '#b39ddb', ...s }) +
+    P(spiralPath(52, 48, 16, 1.6, 2), line('#ede7f6', 3)) + E(38, 34, 8, 4, { fill: '#fff', opacity: .8, transform: 'rotate(-35 38 34)' }) +
+    P(starPath(84, 20, 8, 3, 4), { fill: '#fff59d' }) + P(starPath(16, 26, 6, 2.5, 4), { fill: '#fff59d' });
+  const book = P('M12 82 Q32 76 50 86 Q68 76 88 82 V90 Q68 84 50 94 Q32 84 12 90 Z', { fill: '#7e57c2', ...s }) +
+    P('M50 36 Q32 26 12 32 V82 Q32 76 50 86 Z', { fill: '#fff8e1', ...s }) + P('M50 36 Q68 26 88 32 V82 Q68 76 50 86 Z', { fill: '#fff8e1', ...s }) +
+    P('M20 44 Q32 40 42 46 M20 54 Q32 50 42 56 M20 64 Q32 60 42 66 M58 46 Q68 40 80 44 M58 56 Q68 50 80 54', line('#bcaaa4', 2.5)) +
+    P(starPath(50, 16, 9, 4), { fill: '#ffd54f' }) + P(starPath(32, 22, 5, 2), { fill: '#ce93d8' }) + P(starPath(70, 20, 6, 2.5), { fill: '#4fc3f7' });
+  const mushroom = (cap, dot) => R(38, 50, 24, 38, { rx: 8, fill: '#fff3e0', ...s }) + P('M8 58 Q12 12 50 12 Q88 12 92 58 Z', { fill: cap, ...s }) +
+    C(32, 34, 6, { fill: dot }) + C(56, 26, 7, { fill: dot }) + C(72, 44, 5, { fill: dot }) + C(46, 47, 5, { fill: dot });
+  const wand = tip => P('M18 88 L60 46', line('#5d4037', 7)) + P('M18 88 L28 78', line('#ffd54f', 7)) + tip;
+  const heart = 'M70 50 C48 34 54 12 70 24 C86 12 92 34 70 50 Z';
+
+  return {
+    id: 'fantasy', name: 'Enchanted Land', preview: 'wE',
+    fx: { star: starPip, sparkle, dust: outlined(o => C(30, 58, 18, o) + C(52, 42, 24, o) + C(73, 56, 18, o) + R(18, 56, 66, 20, { rx: 10, ...o }), '#f3e5f5', '#ba68c8', 3) +
+      P(starPath(36, 50, 7, 2.5, 4), { fill: '#f9a825' }) + P(starPath(62, 44, 9, 3, 4), { fill: '#f9a825' }) + P(starPath(70, 64, 6, 2, 4), { fill: '#f9a825' }) },
+    suits: { c: { name: 'stars', pic: starPip, colour: '#b07d0c' }, b: { name: 'gems', pic: gem, colour: '#1565c0' }, d: { name: 'potions', pic: potion, colour: '#8e24aa' } },
+    honours: [
+      { name: 'Unicorn', pic: unicorn }, { name: 'Dragon', pic: dragon }, { name: 'Fairy', pic: fairy }, { name: 'Gnome', pic: gnome },
+      { name: 'Castle', pic: castle }, { name: 'Crystal ball', pic: ball }, { name: 'Spell book', pic: book },
+    ],
+    flowers: { group: 'magic mushroom', colour: '#d81b60', items: [
+      { name: 'Red mushroom', pic: mushroom('#e53935', '#fff') }, { name: 'Blue mushroom', pic: mushroom('#42a5f5', '#e3f2fd') },
+      { name: 'Purple mushroom', pic: mushroom('#ab47bc', '#f3e5f5') }, { name: 'Golden mushroom', pic: mushroom('#ffb300', '#fff8e1') }] },
+    seasons: { group: 'magic wand', colour: '#00897b', items: [
+      { name: 'Star wand', pic: wand(P(starPath(68, 30, 22, 9), { fill: '#ffd54f', stroke: '#c79a00', strokeWidth: 3, strokeLinejoin: 'round' })) },
+      { name: 'Heart wand', pic: wand(P(heart, { fill: '#f06292', stroke: '#ad1457', strokeWidth: 3 })) },
+      { name: 'Moon wand', pic: wand(P('M74 10 A24 24 0 1 0 92 44 A18 18 0 1 1 74 10 Z', { fill: '#fff176', stroke: '#c9a227', strokeWidth: 3 })) },
+      { name: 'Flower wand', pic: wand(place(bloom(5, '#ba68c8', '#fff59d', 12, 18, O), 70, 30, 44)) }] },
+  };
+}
+
+/* ---------- Mountain Trail ---------- */
+
+function mountain() {
+  const O = '#22313f';
+  const s = { stroke: O, strokeWidth: 3.5, strokeLinejoin: 'round' };
+  const pine = R(44, 74, 12, 18, { fill: '#6d4c41', ...s }) +
+    P('M50 6 L72 36 H62 L80 58 H66 L86 80 H14 L34 58 H20 L38 36 H28 Z', { fill: '#2e7d32', ...s });
+  const peak = P('M6 88 L50 12 L94 88 Z', { fill: '#78909c', ...s }) + P('M50 12 L64 36 L56 32 L50 40 L44 32 L36 36 Z', { fill: '#fff' });
+  const fire = P('M18 88 L82 72 M18 72 L82 88', line('#6d4c41', 10)) +
+    P('M50 10 Q76 40 66 60 Q62 74 50 74 Q38 74 34 60 Q24 40 50 10 Z', { fill: '#ff7043', ...s }) +
+    P('M50 36 Q62 52 57 62 Q50 70 43 62 Q38 52 50 36 Z', { fill: '#ffd54f' });
+  const eyes = (y, x) => C(50 - x, y, 4.5, { fill: O }) + C(50 + x, y, 4.5, { fill: O }) + C(51.5 - x, y - 1.5, 1.5, { fill: '#fff' }) + C(51.5 + x, y - 1.5, 1.5, { fill: '#fff' });
+
+  const bear = C(22, 28, 11, { fill: '#8d6e63', ...s }) + C(78, 28, 11, { fill: '#8d6e63', ...s }) + C(22, 28, 5, { fill: '#bcaaa4' }) + C(78, 28, 5, { fill: '#bcaaa4' }) +
+    E(50, 56, 34, 32, { fill: '#8d6e63', ...s }) + E(50, 70, 16, 12, { fill: '#d7ccc8' }) + eyes(50, 13) +
+    E(50, 63, 7, 5, { fill: O }) + P('M50 68 V73 M50 73 Q45 78 41 74 M50 73 Q55 78 59 74', line(O, 2.4));
+  const fox = P('M16 46 L18 6 L44 30 Z', { fill: '#ef6c00', ...s }) + P('M84 46 L82 6 L56 30 Z', { fill: '#ef6c00', ...s }) +
+    P('M22 34 L22 16 L34 28 Z', { fill: '#4e342e' }) + P('M78 34 L78 16 L66 28 Z', { fill: '#4e342e' }) +
+    P('M12 40 Q50 20 88 40 Q82 70 50 92 Q18 70 12 40 Z', { fill: '#ff8a3d', ...s }) +
+    P('M16 50 Q34 62 50 92 Q30 80 16 50 Z M84 50 Q66 62 50 92 Q70 80 84 50 Z', { fill: '#fff' }) +
+    eyes(50, 15) + C(50, 86, 5, { fill: O });
+  const deer = P('M38 26 L30 4 M33 12 L22 10 M36 18 L26 22 M62 26 L70 4 M67 12 L78 10 M64 18 L74 22', line('#8d6e63', 5)) +
+    E(24, 38, 12, 6, { fill: '#b07a4f', transform: 'rotate(-30 24 38)', ...s }) + E(76, 38, 12, 6, { fill: '#b07a4f', transform: 'rotate(30 76 38)', ...s }) +
+    E(50, 58, 22, 32, { fill: '#b07a4f', ...s }) + E(50, 80, 13, 10, { fill: '#e0c3a3' }) + eyes(50, 11) + E(50, 80, 6, 4, { fill: O }) +
+    C(40, 34, 2.5, { fill: '#f3e3cf' }) + C(60, 34, 2.5, { fill: '#f3e3cf' });
+  const eagle = P('M20 96 Q30 66 54 62 Q80 62 90 96 Z', { fill: '#6d4c41', ...s }) +
+    P('M30 64 Q26 30 52 22 Q78 20 80 46 Q80 62 66 70 Q50 74 30 64 Z', { fill: '#fafafa', ...s }) +
+    P('M32 40 Q12 38 10 54 Q14 62 22 56 Q24 50 34 50 Z', { fill: '#ffc107', ...s }) +
+    C(44, 38, 4.5, { fill: O }) + C(45, 37, 1.4, { fill: '#fff' }) + P('M36 32 Q46 27 56 33', line(O, 2.5));
+  const tent = P('M4 88 H96', line('#558b2f', 4)) + P('M8 86 L50 14 L92 86 Z', { fill: '#ff9800', ...s }) +
+    P('M50 14 L38 86 H62 Z', { fill: '#e65100', ...s }) + P('M50 14 L46 6 M50 14 L54 6', line(O, 2.5));
+  const cabin = R(66, 20, 10, 20, { fill: '#795548', ...s }) + R(16, 46, 68, 42, { fill: '#a1673b', ...s }) +
+    P('M16 56 H84 M16 66 H84 M16 76 H84', line('#6d4321', 2.5)) + P('M6 50 L50 16 L94 50 Z', { fill: '#5d4037', ...s }) +
+    R(26, 58, 16, 14, { fill: '#ffe082', ...s, strokeWidth: 2.5 }) + R(56, 62, 16, 26, { fill: '#4e342e', ...s, strokeWidth: 2.5 });
+  const canoe = P('M4 74 Q16 68 28 74 T52 74 T76 74 T100 74', line('#4fc3f7', 3)) + P('M66 26 L44 84', line('#8d6e63', 4)) + E(42, 88, 4, 7, { fill: '#8d6e63', transform: 'rotate(20 42 88)' }) +
+    P('M6 52 Q50 86 94 52 Q50 62 6 52 Z', { fill: '#d84315', ...s }) + P('M20 60 Q50 74 80 60', line('#ffab91', 2.5));
+  const spike = (c, d) => P('M50 94 V30', line('#43a047', 4)) + [26, 34, 42, 50, 58, 66, 74].map((y, i) =>
+    C(50 + (i % 2 ? 7 : -7) * (1 - i / 10), y, 7 - i * .5, { fill: i % 2 ? c : d, stroke: O, strokeWidth: 1.5 })).join('') + E(38, 84, 10, 4, { fill: '#66bb6a', transform: 'rotate(-30 38 84)' });
+  const cluster = (p, c) => P('M50 96 V70 M50 80 L30 66 M50 80 L70 68', line('#2e7d32', 4)) +
+    [[32, 40], [64, 34], [50, 62]].map(([x, y]) => place(bloom(5, p, c, 9, 14, O), x, y, 46)).join('');
+  const backpack = R(26, 24, 48, 66, { rx: 12, fill: '#2e7d32', ...s }) + P('M26 40 Q50 28 74 40 V24 Q50 10 26 24 Z', { fill: '#1b5e20', ...s }) +
+    R(34, 58, 32, 22, { rx: 6, fill: '#43a047', ...s }) + P('M18 40 Q14 64 22 86 M82 40 Q86 64 78 86', line('#5d4037', 4)) + C(50, 40, 3, { fill: '#ffd54f' });
+  const compass = C(50, 50, 38, { fill: '#eceff1', stroke: '#90a4ae', strokeWidth: 6 }) + P('M50 18 L58 50 H42 Z', { fill: '#e53935' }) + P('M42 50 H58 L50 82 Z', { fill: '#90a4ae' }) +
+    C(50, 50, 4, { fill: O }) + P('M50 14 V20 M50 80 V86 M14 50 H20 M80 50 H86', line(O, 2.5));
+  const lantern = P('M38 24 Q50 2 62 24', line(O, 3)) + R(34, 22, 32, 8, { rx: 3, fill: '#455a64', ...s }) +
+    R(34, 30, 32, 48, { rx: 6, fill: '#ffe082', ...s }) + P('M50 44 Q58 54 54 62 Q50 66 46 62 Q42 54 50 44 Z', { fill: '#ff9800' }) +
+    P('M42 30 V78 M58 30 V78', line('#455a64', 2)) + R(30, 78, 40, 10, { rx: 3, fill: '#455a64', ...s });
+  const map = P('M10 22 L36 14 L64 22 L90 14 V78 L64 86 L36 78 L10 86 Z', { fill: '#fff3c4', ...s }) + P('M36 14 V78 M64 22 V86', line('#d7c48a', 2)) +
+    P('M18 70 Q36 50 52 58 Q70 66 78 34', { fill: 'none', stroke: '#e53935', strokeWidth: 3, strokeDasharray: '5 4', strokeLinecap: 'round' }) +
+    P('M72 26 L84 38 M84 26 L72 38', line('#e53935', 4)) + P('M16 30 L26 22 L30 32 Z', { fill: '#81c784' });
+  const pinecone = P('M50 20 V10', line('#5d4037', 4)) + E(50, 56, 24, 34, { fill: '#8d6e63', ...s }) +
+    P('M30 40 Q50 50 70 40 M27 56 Q50 66 73 56 M32 72 Q50 80 68 72 M50 24 V86', line('#5d4037', 3));
+  const fog = outlined(o => C(30, 58, 18, o) + C(52, 42, 24, o) + C(73, 56, 18, o) + R(18, 56, 66, 20, { rx: 10, ...o }), '#eceff1', '#90a4ae', 3) +
+    P('M22 84 H70 M32 92 H82', line('#b0bec5', 4));
+
+  return {
+    id: 'mountain', name: 'Mountain Trail', preview: 'wE',
+    fx: { pinecone, star: P(starPath(50, 50, 44, 18), { fill: '#fff59d' }), fog },
+    suits: { c: { name: 'pine trees', pic: pine, colour: '#2e7d32' }, b: { name: 'mountains', pic: peak, colour: '#546e7a' }, d: { name: 'campfires', pic: fire, colour: '#e65100' } },
+    honours: [
+      { name: 'Bear', pic: bear }, { name: 'Fox', pic: fox }, { name: 'Deer', pic: deer }, { name: 'Eagle', pic: eagle },
+      { name: 'Tent', pic: tent }, { name: 'Log cabin', pic: cabin }, { name: 'Canoe', pic: canoe },
+    ],
+    flowers: { group: 'wildflower', colour: '#8e24aa', items: [
+      { name: 'Lupine', pic: spike('#9575cd', '#7e57c2') }, { name: 'Buttercup', pic: cluster('#fdd835', '#f57f17') },
+      { name: 'Forget-me-not', pic: cluster('#64b5f6', '#fff176') }, { name: 'Poppy', pic: bloom(4, '#e53935', '#212121', 18, 22, O) }] },
+    seasons: { group: 'hiking gear', colour: '#00897b', items: [
+      { name: 'Backpack', pic: backpack }, { name: 'Compass', pic: compass }, { name: 'Lantern', pic: lantern }, { name: 'Map', pic: map }] },
+  };
+}
+
 /* ---------- Write the sprites and the list ---------- */
 
 const HEADER = `<!--
@@ -508,7 +742,7 @@ manifest.push({
   flowers: { group: 'flower', items: ['Plum', 'Orchid', 'Chrysanthemum', 'Bamboo'] },
   seasons: { group: 'season', items: ['Spring', 'Summer', 'Autumn', 'Winter'] },
 });
-for (const t of [dogs(), chameleons(), reef(), halloween()]) {
+for (const t of [dogs(), cats(), chameleons(), reef(), fantasy(), mountain(), halloween()]) {
   writeSprite(t.id, kidSet(t), t.fx);
   manifest.push({
     id: t.id, name: t.name, preview: t.preview, fx: Object.keys(t.fx),

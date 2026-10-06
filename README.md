@@ -3,8 +3,9 @@
 Mahjong solitaire on the classic 144-tile turtle layout, in the browser, in
 English, German and Croatian.
 
-It comes with five tile styles: Classic, and four for kids: Dog Park,
-Chameleon Jungle, Coral Reef and Haunted Night. Pick one from the button at
+It comes with eight tile styles: Classic, and seven for kids: Dog Park,
+Cat Corner, Chameleon Jungle, Coral Reef, Enchanted Land, Mountain Trail and
+Haunted Night. Pick one from the button at
 the top left; the language switch is at the top right. The kids' styles keep the
 structure of a real set. There are three suits of 1 to 9 pictures to count,
 each tile with its number at the top. There are seven single pictures in
@@ -14,7 +15,8 @@ flowers and seasons, where any tile matches any other tile in its group.
 Each style also clears a pair its own way. Dogs hop off in a burst of paw
 prints and bones. Chameleon tiles change colour and fade, with leaves and
 ladybirds falling. Reef tiles float up among bubbles. Haunted tiles turn to
-ghosts and let out bats.
+ghosts and let out bats. Cats pounce away, enchanted tiles twirl off in a
+puff of magic, and on the mountain a gust of wind carries them off.
 
 Clearing the whole board starts a celebration in the same style: lanterns
 and sparks, leaping dogs under a rain of bones, leaping chameleons and
