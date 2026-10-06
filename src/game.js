@@ -125,7 +125,7 @@
     return { type: r < .75 ? 'helper' : 'mischief', at: 2 * (12 + (rng() * 30 | 0)), done: false, covered: [] };
   }
   const STORE = 'turtle-mahjong-game', BEST = 'turtle-mahjong-best', SHADE = 'turtle-mahjong-shade',
-    SKIN = 'turtle-mahjong-style', LANG = 'turtle-mahjong-lang', BG = 'turtle-mahjong-background';
+    SKIN = 'turtle-mahjong-style', LANG = 'turtle-mahjong-lang', BG = 'turtle-mahjong-backdrop';
   const load = k => { try { return localStorage.getItem(k); } catch { return null; } };
   const store = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
   const valid = s => s && Array.isArray(s.faces) && s.faces.length === N && Array.isArray(s.present) && s.present.length === N;
@@ -675,10 +675,14 @@
   // picture is copied out of the sprite into the page, not referenced with
   // <use>, so the page's animations reach its parts.
   const BGS = ['plain', 'picture', 'moving'], BG_WORD = { plain: 'bgPlain', picture: 'bgPicture', moving: 'bgMoving' };
-  function useBg(bg) {
-    bg = BGS.includes(bg) ? bg : 'picture';
+  // Moving unless the viewer chose otherwise. Only a choice is stored, so a
+  // later change of default reaches everyone who never picked one. (The key
+  // was renamed when the default changed, because the old one also stored
+  // the default.)
+  function useBg(bg, chosen) {
+    bg = BGS.includes(bg) ? bg : 'moving';
     document.documentElement.dataset.bg = bg;
-    store(BG, bg);
+    if (chosen) store(BG, bg);
     document.querySelectorAll('.bg').forEach(b => b.setAttribute('aria-checked', b.dataset.bg === bg));
   }
   function drawScene() {
@@ -690,7 +694,7 @@
     b.type = 'button'; b.className = 'bg'; b.dataset.bg = bg;
     b.setAttribute('role', 'radio');
     b.textContent = tr()[BG_WORD[bg]];
-    b.onclick = () => useBg(bg);
+    b.onclick = () => useBg(bg, true);
     $('#bgs').appendChild(b);
   });
   useBg(load(BG));
