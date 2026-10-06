@@ -1,5 +1,9 @@
 # Turtle Mahjong
 
+**[▶ Play it here](https://ivankovic.github.io/mahjong/)**
+
+![The same game in each tile style, crossfading from one to the next](docs/themes.gif)
+
 Mahjong solitaire on the classic 144-tile turtle layout, in the browser, in
 English, German and Croatian.
 
@@ -36,8 +40,6 @@ Every deal can be cleared. The game deals by playing the board backwards
 from full: each pair goes on two tiles that are free at the same moment, so
 removing the pairs in reverse order always works. Shuffle uses the same
 method on the tiles that are left.
-
-Play it at <https://ivankovic.github.io/mahjong/>.
 
 ## Controls
 
@@ -79,6 +81,21 @@ and run `node assets/src/build.mjs`, then commit both. The page's colours,
 fonts, tile bodies and clearing animations for each style are the
 `[data-skin]` blocks in `src/style.css`; the pictures that fly off a cleared
 tile are the `<style>-fx-*` symbols, and `FX` in `src/game.js` says how they move.
+
+## The GIF above
+
+`docs/themes.gif` is made by `tools/demo-gif.mjs`, which opens the game from
+the working tree in a headless browser, deals the same game every time,
+photographs it in each style and crossfades between them. After changing a
+style, make it again:
+
+```sh
+npm install
+npx playwright install chromium   # once
+npm run demo-gif
+```
+
+The game itself needs none of this; `package.json` is for this tool only.
 
 ## Deployment
 

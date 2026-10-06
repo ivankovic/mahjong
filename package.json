@@ -1,0 +1,14 @@
+{
+  "name": "turtle-mahjong",
+  "private": true,
+  "type": "module",
+  "description": "Tooling only; the game itself has no build and no dependencies.",
+  "scripts": {
+    "demo-gif": "node tools/demo-gif.mjs"
+  },
+  "devDependencies": {
+    "gifenc": "^1.0.3",
+    "playwright": "^1.63.0",
+    "pngjs": "^7.0.0"
+  }
+}
