@@ -5,30 +5,55 @@
   const $ = s => document.querySelector(s);
   const board = $('#board'), wrap = $('#wrap');
 
-  /* ---------- Turtle layout, in half-tile units ---------- */
-  const LAYOUT = [];
-  const add = (x, y, z) => LAYOUT.push({ x2: Math.round(x * 2), y2: Math.round(y * 2), z });
-  [[1, 12], [3, 10], [2, 11], [1, 12], [1, 12], [2, 11], [3, 10], [1, 12]]
-    .forEach(([a, b], y) => { for (let x = a; x <= b; x++) add(x, y, 0); });
-  add(0, 3.5, 0); add(13, 3.5, 0); add(14, 3.5, 0);
-  for (let y = 1; y <= 6; y++) for (let x = 4; x <= 9; x++) add(x, y, 1);
-  for (let y = 2; y <= 5; y++) for (let x = 5; x <= 8; x++) add(x, y, 2);
-  for (let y = 3; y <= 4; y++) for (let x = 6; x <= 7; x++) add(x, y, 3);
-  add(6.5, 3.5, 4);
-  const N = LAYOUT.length; // 144
-
-  LAYOUT.forEach(a => {
-    a.above = []; a.left = []; a.right = [];
-    LAYOUT.forEach((b, j) => {
-      if (a === b) return;
-      const dx = b.x2 - a.x2, dy = b.y2 - a.y2;
-      if (b.z > a.z && Math.abs(dx) < 2 && Math.abs(dy) < 2) a.above.push(j);
-      if (b.z === a.z && Math.abs(dy) < 2) {
-        if (dx === -2) a.left.push(j);
-        if (dx === 2) a.right.push(j);
-      }
+  /* ---------- Shapes ---------- */
+  // Each shape places its tiles with add(x, y, layer), in tile widths and rows
+  // (halves allowed). Every shape has an even number of tiles, at most 144.
+  const rect = (add, x0, x1, y0, y1, z) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) add(x, y, z); };
+  const SHAPES = {
+    turtle: add => { // 144, wide: the classic
+      [[1, 12], [3, 10], [2, 11], [1, 12], [1, 12], [2, 11], [3, 10], [1, 12]]
+        .forEach(([a, b], y) => { for (let x = a; x <= b; x++) add(x, y, 0); });
+      add(0, 3.5, 0); add(13, 3.5, 0); add(14, 3.5, 0);
+      rect(add, 4, 9, 1, 6, 1); rect(add, 5, 8, 2, 5, 2); rect(add, 6, 7, 3, 4, 3);
+      add(6.5, 3.5, 4);
+    },
+    tower: add => { // 108, tall: for a phone held upright
+      rect(add, 0, 5, 0, 9, 0); rect(add, 1, 4, 1, 8, 1); rect(add, 2, 3, 2, 7, 2);
+      for (let y = 3; y <= 6; y++) add(2.5, y, 3);
+    },
+    bridge: add => { // 72, long and low: for a phone on its side
+      rect(add, 0, 11, 0, 3, 0); add(-1, 1.5, 0); add(12, 1.5, 0);
+      rect(add, 2, 9, 1, 2, 1); for (let x = 4; x <= 7; x++) add(x, 1.5, 2);
+      add(5, 1.5, 3); add(6, 1.5, 3);
+    },
+    pyramid: add => { // 56: a quick game
+      rect(add, 0, 5, 0, 5, 0); rect(add, 1, 4, 1, 4, 1); rect(add, 2, 3, 2, 3, 2);
+    },
+  };
+  const SHAPE_IDS = Object.keys(SHAPES);
+  // A shape's tiles in half-tile units, from 0, with who covers and flanks whom.
+  function buildShape(id) {
+    const L = [];
+    SHAPES[id]((x, y, z) => L.push({ x2: Math.round(x * 2), y2: Math.round(y * 2), z }));
+    const mx = Math.min(...L.map(p => p.x2)), my = Math.min(...L.map(p => p.y2));
+    L.forEach(p => { p.x2 -= mx; p.y2 -= my; });
+    L.forEach(a => {
+      a.above = []; a.left = []; a.right = [];
+      L.forEach((b, j) => {
+        if (a === b) return;
+        const dx = b.x2 - a.x2, dy = b.y2 - a.y2;
+        if (b.z > a.z && Math.abs(dx) < 2 && Math.abs(dy) < 2) a.above.push(j);
+        if (b.z === a.z && Math.abs(dy) < 2) {
+          if (dx === -2) a.left.push(j);
+          if (dx === 2) a.right.push(j);
+        }
+      });
     });
-  });
+    L.size = { w: Math.max(...L.map(p => p.x2)) + 2, h: Math.max(...L.map(p => p.y2)) + 2, z: Math.max(...L.map(p => p.z)) };
+    return L;
+  }
+  const BUILT = Object.fromEntries(SHAPE_IDS.map(id => [id, buildShape(id)]));
+  let shape = 'turtle', LAYOUT = BUILT.turtle, N = LAYOUT.length;
   const isFree = (i, present) => {
     const p = LAYOUT[i];
     if (p.above.some(j => present[j])) return false;
@@ -99,7 +124,7 @@
     const fl = shuffle(['f1', 'f2', 'f3', 'f4'], rng), se = shuffle(['s1', 's2', 's3', 's4'], rng);
     pairs.push([fl[0], fl[1]], [fl[2], fl[3]], [se[0], se[1]], [se[2], se[3]]);
     const all = [...Array(N).keys()];
-    const out = assign(all, pairs, rng);
+    const out = assign(all, N >= pairs.length * 2 ? pairs : shuffle(pairs, rng).slice(0, N / 2), rng);
     return all.map(i => out[i]);
   }
 
@@ -108,7 +133,7 @@
 
   function fresh(seed) {
     const faces = deal(seed);
-    return { seed, faces, present: Array(N).fill(1), history: [], elapsed: 0, started: false, over: false, event: planEvent(seed, faces) };
+    return { shape, seed, faces, present: Array(N).fill(1), history: [], elapsed: 0, started: false, over: false, event: planEvent(seed, faces) };
   }
 
   // At most one surprise per deal, picked from the deal number so that a
@@ -118,20 +143,33 @@
     const rng = mulberry32(seed * 7919 + 17), r = rng();
     if (r < .25) return null;
     if (r < .5) {
-      const k = KINDS[rng() * KINDS.length | 0];
+      const kinds = KINDS.filter(k => faces.filter(f => f === k).length > 1);
+      const k = kinds[rng() * kinds.length | 0];
       const four = shuffle(faces.map((f, i) => f === k ? i : -1).filter(i => i >= 0), rng);
       return { type: 'golden', tiles: four.slice(0, 2), done: false };
     }
-    return { type: r < .75 ? 'helper' : 'mischief', at: 2 * (12 + (rng() * 30 | 0)), done: false, covered: [] };
+    return { type: r < .75 ? 'helper' : 'mischief', at: 2 * Math.round(N * (.17 + rng() * .4) / 2), done: false, covered: [] };
   }
   const STORE = 'turtle-mahjong-game', BEST = 'turtle-mahjong-best', SHADE = 'turtle-mahjong-shade',
     SKIN = 'turtle-mahjong-style', LANG = 'turtle-mahjong-lang', BG = 'turtle-mahjong-backdrop';
   const load = k => { try { return localStorage.getItem(k); } catch { return null; } };
   const store = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
-  const valid = s => s && Array.isArray(s.faces) && s.faces.length === N && Array.isArray(s.present) && s.present.length === N;
+  const valid = s => s && SHAPES[s.shape || 'turtle'] && Array.isArray(s.faces) && Array.isArray(s.present) &&
+    s.faces.length === BUILT[s.shape || 'turtle'].length && s.present.length === s.faces.length;
+  // The Turtle keeps the key best times were stored under before there were shapes.
+  const bestKey = () => shape === 'turtle' ? BEST : BEST + '-' + shape;
 
   /* ---------- Tiles in the DOM ---------- */
-  const tiles = LAYOUT.map((p, i) => {
+  let tiles = [];
+  function useShape(id) {
+    shape = SHAPES[id] ? id : 'turtle';
+    LAYOUT = BUILT[shape]; N = LAYOUT.length;
+    board.querySelectorAll('.tile').forEach(el => el.remove());
+    board.style.setProperty('--zmax', LAYOUT.size.z);
+    tiles = LAYOUT.map(makeTile);
+    fit();
+  }
+  function makeTile(p, i) {
     const el = document.createElement('div');
     el.className = 'tile';
     el.dataset.i = i;
@@ -140,7 +178,7 @@
     el.innerHTML = '<div class="top"><svg viewBox="0 0 40 53" aria-hidden="true"><use></use></svg></div>';
     board.appendChild(el);
     return el;
-  });
+  }
 
   function freeTiles() {
     const out = [];
@@ -218,9 +256,9 @@
     const left = leftCount();
     if (left === 0) {
       S.over = true; S.started = false;
-      const best = Number(load(BEST)) || 0;
+      const best = Number(load(bestKey())) || 0;
       const isBest = !best || S.elapsed < best;
-      if (isBest) store(BEST, String(S.elapsed));
+      if (isBest) store(bestKey(), String(S.elapsed));
       celebrate(() => notice(tr().cleared, tr().clearedBody(fmt(S.elapsed), fmt(best), isBest),
         [[tr().newDeal, newDeal, true], [tr().replay, restart]]));
     } else if (countPairs() === 0) {
@@ -542,7 +580,7 @@
     checkEnd();
   }
 
-  const inProgress = () => S.history.length > 0 && !S.over;
+  const inProgress = () => !!S && S.history.length > 0 && !S.over;
   function confirmThen(title, fn) {
     if (!inProgress()) { fn(); return; }
     notice(title, tr().confirmBody(N - leftCount(), N), [[title, fn, true], [tr().keepPlaying, () => {}]]);
@@ -556,8 +594,59 @@
     $('#toast').hidden = true;
     if (S.event && S.event.type === 'golden') setTimeout(() => toast(() => tt().golden[0]), 500);
   }
-  const newDeal = () => begin(1 + Math.floor(Math.random() * 99999));
+  const dealShape = id => { useShape(id); begin(1 + Math.floor(Math.random() * 99999)); };
+  const newDeal = () => openShapes();
   const restart = () => begin(S.seed);
+
+  /* ---------- Choosing a shape ---------- */
+  // How wide a tile of shape `id` would be on this screen, in px.
+  const tileWidth = (id, W = wrap.clientWidth, H = wrap.clientHeight) => {
+    const { w, h, z } = BUILT[id].size;
+    return 2 * Math.min(W / (w + z * .3 + .2), H / (h * 1.28 + z * .3 + .2), 38);
+  };
+  // The biggest shape whose tiles are still comfortable to tap, or failing
+  // that the one with the biggest tiles.
+  const recommend = () => {
+    const ok = SHAPE_IDS.filter(id => tileWidth(id) >= 44);
+    return ok.length ? ok.sort((a, b) => BUILT[b].length - BUILT[a].length)[0]
+      : SHAPE_IDS.slice().sort((a, b) => tileWidth(b) - tileWidth(a))[0];
+  };
+  const preview = id => {
+    const L = BUILT[id], { w, h, z } = L.size, u = 5, v = 6.4, d = 1.6;
+    const tilesSvg = L.slice().sort((a, b) => a.z - b.z || a.y2 - b.y2 || a.x2 - b.x2).map(p =>
+      `<rect x="${p.x2 * u + (z - p.z) * d}" y="${p.y2 * v + (z - p.z) * d}" width="${2 * u - 1}" height="${2 * v - 1}" rx="1.5" class="pz${Math.min(p.z, 4)}"/>`).join('');
+    return `<svg viewBox="-1 -1 ${w * u + z * d + 2} ${h * v + z * d + 2}" aria-hidden="true">${tilesSvg}</svg>`;
+  };
+  function openShapes() {
+    const best = recommend(), list = $('#shapeList');
+    list.innerHTML = '';
+    SHAPE_IDS.forEach(id => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'shape' + (id === best ? ' best' : '');
+      b.innerHTML = preview(id) + `<span class="shape-name"></span><span class="shape-count"></span>` +
+        (id === best ? '<span class="shape-best"></span>' : '');
+      b.querySelector('.shape-name').textContent = tr().shapes[id];
+      b.querySelector('.shape-count').textContent = tr().tileCount(BUILT[id].length);
+      if (id === best) b.querySelector('.shape-best').textContent = tr().bestFit;
+      b.onclick = () => { closeShapes(); dealShape(id); };
+      list.appendChild(b);
+    });
+    $('#shapesTitle').textContent = tr().newGame;
+    $('#shapesWarn').textContent = inProgress() ? tr().confirmBody(N - leftCount(), N) : '';
+    $('#shapesWarn').hidden = !inProgress();
+    $('#shapesCancel').textContent = tr().keepPlaying;
+    $('#shapesCancel').hidden = !S || S.over;
+    hideNotice();
+    $('#shapes').hidden = false;
+    paused = true;
+    list.querySelector('.best')?.focus();
+  }
+  function closeShapes() {
+    $('#shapes').hidden = true;
+    paused = false;
+    lastTick = performance.now();
+  }
+  $('#shapesCancel').onclick = closeShapes;
 
   /* ---------- Wiring ---------- */
   // Nothing responds until the tiles have loaded and there is a game.
@@ -570,7 +659,7 @@
   $('#undoBtn').onclick = whenDealt(undo);
   $('#shuffleBtn').onclick = whenDealt(shuffleTiles);
   $('#restartBtn').onclick = whenDealt(() => confirmThen(tr().restart, restart));
-  $('#newBtn').onclick = whenDealt(() => confirmThen(tr().newDeal, newDeal));
+  $('#newBtn').onclick = whenDealt(newDeal);
 
   const shade = $('#shade');
   shade.checked = load(SHADE) !== '0';
@@ -581,6 +670,7 @@
     if (!S || e.target.closest('input, textarea')) return;
     const k = e.key.toLowerCase();
     if (!$('#help').hidden) { if (k === 'escape') closeHelp(); return; }
+    if (!$('#shapes').hidden) { if (k === 'escape' && !$('#shapesCancel').hidden) closeShapes(); return; }
     if (!$('#skins').hidden) { if (k === 'escape') { skinsOpen(false); $('#skinBtn').focus(); } return; }
     if (k === '?') { openHelp(); return; }
     if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); return; }
@@ -601,28 +691,29 @@
   setInterval(() => S && S.started && save(), 5000);
 
   function fit() {
-    const W = wrap.clientWidth, H = wrap.clientHeight;
-    const ux = Math.max(8, Math.min(W / 31.4, H / 21.9, 38));
+    const { w, h, z } = LAYOUT.size;
+    const ux = Math.max(8, tileWidth(shape) / 2);
     const uy = ux * 1.28, d = ux * .3;
     board.style.setProperty('--ux', ux + 'px');
     board.style.setProperty('--uy', uy + 'px');
     board.style.setProperty('--d', d + 'px');
     board.style.setProperty('--t', ux * .3 + 'px');
-    board.style.width = 30 * ux + 4 * d + 'px';
-    board.style.height = 16 * uy + 4 * d + 'px';
+    board.style.width = w * ux + z * d + 'px';
+    board.style.height = h * uy + z * d + 'px';
   }
   new ResizeObserver(fit).observe(wrap);
-  fit();
 
   function start() {
     let saved;
     try { saved = JSON.parse(load(STORE)); } catch { saved = null; }
     if (valid(saved)) {
+      saved.shape ||= 'turtle';
+      useShape(saved.shape);
       S = saved;
       if (S.event) S.event.running = false;
       render();
       if (!S.over && leftCount() > 0 && countPairs() === 0) checkEnd();
-    } else newDeal();
+    } else dealShape(recommend()); // a first visit starts on the shape that fits
   }
 
   /* ---------- Language ---------- */

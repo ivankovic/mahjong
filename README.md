@@ -4,8 +4,13 @@
 
 ![The same game in each tile style, crossfading from one to the next](docs/themes.gif)
 
-Mahjong solitaire on the classic 144-tile turtle layout, in the browser, in
-English, German and Croatian.
+Mahjong solitaire in the browser, in English, German and Croatian.
+
+There are four shapes to stack the tiles in: the classic Turtle (144 tiles,
+wide), the Tower (108, tall, for a phone held upright), the Bridge (72, long
+and low, for a phone on its side) and the Pyramid (56, a quick game). New
+deal asks which one, and marks the biggest shape whose tiles still come out
+comfortable to tap on this screen; a first visit starts on that one.
 
 It comes with eight tile styles: Classic, and seven for kids: Dog Park,
 Cat Corner, Chameleon Jungle, Coral Reef, Enchanted Land, Mountain Trail and

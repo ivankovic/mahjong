@@ -74,8 +74,8 @@ body {
 .tile {
   position: absolute;
   width: calc(var(--ux) * 2); height: calc(var(--uy) * 2);
-  left: calc(var(--x) * var(--ux) + (4 - var(--z)) * var(--d));
-  top: calc(var(--y) * var(--uy) + (4 - var(--z)) * var(--d));
+  left: calc(var(--x) * var(--ux) + (var(--zmax) - var(--z)) * var(--d));
+  top: calc(var(--y) * var(--uy) + (var(--zmax) - var(--z)) * var(--d));
   border-radius: calc(var(--ux) * .3);
   background: var(--jade);
   box-shadow: calc(var(--ux) * .1) calc(var(--ux) * .16) calc(var(--ux) * .32) var(--tile-shadow);
@@ -183,6 +183,22 @@ body {
 .help b { color: var(--accent); }
 .help-group { display: flex; gap: 6px; }
 .mini-tile { width: 36px; height: 48px; background: #fbf7ec; border-radius: 5px; box-shadow: 1px 2px 0 var(--jade); }
+
+/* Choosing a shape */
+.shape-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }
+.shape {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 8px 8px; cursor: pointer;
+  background: var(--btn); color: var(--ink); border: 2px solid var(--btn-line); border-radius: 12px; font: 600 .95rem/1.2 var(--f-ui);
+}
+.shape:hover { border-color: var(--ink); }
+.shape:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.shape.best { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.shape svg { width: 100%; height: 5.5rem; }
+.shape rect { fill: var(--bone); stroke: var(--jade-deep); stroke-width: .6; }
+.shape .pz1 { fill: var(--bone-edge); } .shape .pz2 { fill: var(--sel); } .shape .pz3, .shape .pz4 { fill: var(--accent); }
+.shape-count { font-weight: 500; font-size: .8rem; color: var(--muted); }
+.shape-best { font-size: .72rem; font-weight: 700; color: var(--accent); text-align: center; }
+.notice .card.shapes-card { width: min(36rem, 100%); max-width: none; box-sizing: border-box; max-height: calc(100% - 8px); overflow-y: auto; }
 
 /* Notice over the board */
 .notice {

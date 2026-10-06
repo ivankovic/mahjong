@@ -45,6 +45,14 @@
     <div class="party" id="party" aria-hidden="true"></div>
     <div class="toast" id="toast" role="status" hidden></div>
     <button class="help-btn" id="helpBtn" type="button" aria-label="How to play" title="How to play">?</button>
+    <div class="notice" id="shapes" hidden>
+      <div class="card shapes-card" role="dialog" aria-modal="true" aria-labelledby="shapesTitle">
+        <h2 id="shapesTitle">New game</h2>
+        <p id="shapesWarn" hidden></p>
+        <div class="shape-list" id="shapeList"></div>
+        <div class="row"><button class="btn" id="shapesCancel" type="button">Keep playing</button></div>
+      </div>
+    </div>
     <div class="notice" id="help" hidden>
       <div class="card help" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
         <h2 id="helpTitle" data-i18n="howTo">How to play</h2>

@@ -12,6 +12,8 @@ window.I18N = {
     hint: 'Hint', undo: 'Undo', shuffle: 'Shuffle', restart: 'Restart', newDeal: 'New deal',
     shade: 'Shade blocked tiles', language: 'Language', tileStyle: 'Tile style', board: 'Mahjong solitaire board',
     background: 'Background', bgPlain: 'Plain', bgPicture: 'Picture', bgMoving: 'Moving',
+    newGame: 'New game', bestFit: 'Best fit for this screen', tileCount: n => `${n} tiles`,
+    shapes: { turtle: 'Turtle', tower: 'Tower', bridge: 'Bridge', pyramid: 'Pyramid' },
     howTo: 'How to play', gotIt: 'Got it',
     cleared: 'Board cleared',
     clearedBody: (time, best, isBest) => `You did it in ${time}. ` + (isBest ? 'That is your best time!' : `Your best is ${best}.`),
@@ -121,6 +123,8 @@ window.I18N = {
     hint: 'Tipp', undo: 'Zurück', shuffle: 'Mischen', restart: 'Neu starten', newDeal: 'Neues Spiel',
     shade: 'Gesperrte Steine abdunkeln', language: 'Sprache', tileStyle: 'Steine', board: 'Mahjong-Spielfeld',
     background: 'Hintergrund', bgPlain: 'Schlicht', bgPicture: 'Bild', bgMoving: 'Bewegt',
+    newGame: 'Neues Spiel', bestFit: 'Passt am besten auf diesen Bildschirm', tileCount: n => `${n} Steine`,
+    shapes: { turtle: 'Schildkröte', tower: 'Turm', bridge: 'Brücke', pyramid: 'Pyramide' },
     howTo: 'So wird gespielt', gotIt: 'Alles klar',
     cleared: 'Alles abgeräumt!',
     clearedBody: (time, best, isBest) => `Geschafft in ${time}. ` + (isBest ? 'Das ist deine beste Zeit!' : `Deine beste Zeit: ${best}.`),
@@ -230,6 +234,8 @@ window.I18N = {
     hint: 'Savjet', undo: 'Vrati', shuffle: 'Promiješaj', restart: 'Ispočetka', newDeal: 'Nova igra',
     shade: 'Zatamni blokirane pločice', language: 'Jezik', tileStyle: 'Izgled pločica', board: 'Ploča za mahjong',
     background: 'Pozadina', bgPlain: 'Obična', bgPicture: 'Slika', bgMoving: 'Pokretna',
+    newGame: 'Nova igra', bestFit: 'Najbolje za ovaj zaslon', tileCount: n => `${n} ${hrPlural(n, 'pločica', 'pločice', 'pločica')}`,
+    shapes: { turtle: 'Kornjača', tower: 'Toranj', bridge: 'Most', pyramid: 'Piramida' },
     howTo: 'Kako se igra', gotIt: 'U redu',
     cleared: 'Sve je očišćeno!',
     clearedBody: (time, best, isBest) => `Gotovo za ${time}. ` + (isBest ? 'To je tvoje najbolje vrijeme!' : `Tvoje najbolje vrijeme: ${best}.`),
@@ -336,8 +342,10 @@ window.I18N = {
 
 // "Ostale su još 2 pločice", "Ostalo je još 6 pločica": Croatian counts take
 // a different verb and noun form after 1, after 2 to 4, and after the rest.
+function hrPlural(n, one, few, many) {
+  if (n % 10 === 1 && n % 100 !== 11) return one;
+  return n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? few : many;
+}
 function hrTiles(n) {
-  const one = n % 10 === 1 && n % 100 !== 11;
-  const few = n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14);
-  return one ? `Ostala je još ${n} pločica` : few ? `Ostale su još ${n} pločice` : `Ostalo je još ${n} pločica`;
+  return `${hrPlural(n, 'Ostala je', 'Ostale su', 'Ostalo je')} još ${n} ${hrPlural(n, 'pločica', 'pločice', 'pločica')}`;
 }
