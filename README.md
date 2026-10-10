@@ -112,7 +112,7 @@ push to `main`. In the repository's Settings → Pages, the source must be
 
 ## License
 
-- Code: [AGPL-3.0-or-later](LICENSE).
+- Code: [AGPL-3.0-only](LICENSE).
 - Art (`assets/`, including `assets/src/build.mjs`, which is the source of the drawings): [CC-BY-NC-ND-4.0](LICENSES/CC-BY-NC-ND-4.0.txt).
 
 See [`REUSE.toml`](REUSE.toml) for the per-path license mapping.

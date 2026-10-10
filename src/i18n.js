@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2026 Marko Ivankovic
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 //
 // Every word the game shows, in English, German and Croatian. German is
 // written the Swiss way, with "ss" for "ß". Croatian avoids verb forms that

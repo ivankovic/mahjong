@@ -3,7 +3,7 @@ SPDX-PackageName = "mahjong"
 SPDX-PackageSupplier = "Marko Ivankovic <marko@ivankovic.me>"
 SPDX-PackageDownloadLocation = "https://github.com/ivankovic/mahjong"
 
-# Code: AGPL-3.0-or-later. src/*.js and src/*.css carry their own SPDX
+# Code: AGPL-3.0-only. src/*.js and src/*.css carry their own SPDX
 # headers; the files below have none, either because a licence line at the
 # top would be noise to the people the file is for (README) or because they
 # are the page and the tooling around the program rather than art.
@@ -15,7 +15,7 @@ path = [
   "tools/demo_gif.py.lock",
 ]
 SPDX-FileCopyrightText = "2026 Marko Ivankovic"
-SPDX-License-Identifier = "AGPL-3.0-or-later"
+SPDX-License-Identifier = "AGPL-3.0-only"
 
 # Art is licensed separately from code. Everything under assets/ is art,
 # including assets/src/build.mjs: it is code only in the sense that the

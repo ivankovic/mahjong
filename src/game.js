@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2026 Marko Ivankovic
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 (() => {
   const $ = s => document.querySelector(s);
