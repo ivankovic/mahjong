@@ -129,17 +129,20 @@
   }
 
   /* ---------- State ---------- */
-  let S, sel = null, hint = [], hintTimer = 0, hintCycle = 0, lastTick = 0, paused = false;
+  // In Memory Mahjong every tile lies under the style's cover. The selected
+  // tile shows its face, and so does a wrong pair, in `peek`, for a moment.
+  let S, sel = null, peek = [], peekTimer = 0, hint = [], hintTimer = 0, hintCycle = 0, lastTick = 0, paused = false;
 
-  function fresh(seed) {
+  function fresh(seed, memory) {
     const faces = deal(seed);
-    return { shape, seed, faces, present: Array(N).fill(1), history: [], elapsed: 0, started: false, over: false, event: planEvent(seed, faces) };
+    return { shape, seed, memory, faces, present: Array(N).fill(1), history: [], elapsed: 0, started: false, over: false, event: planEvent(seed, faces, memory) };
   }
 
   // At most one surprise per deal, picked from the deal number so that a
   // restart brings the same one back. `at` is how many tiles must be cleared
-  // before it happens.
-  function planEvent(seed, faces) {
+  // before it happens. Mischief has nothing left to cover in Memory Mahjong,
+  // so a helper comes instead.
+  function planEvent(seed, faces, memory) {
     const rng = mulberry32(seed * 7919 + 17), r = rng();
     if (r < .25) return null;
     if (r < .5) {
@@ -148,16 +151,16 @@
       const four = shuffle(faces.map((f, i) => f === k ? i : -1).filter(i => i >= 0), rng);
       return { type: 'golden', tiles: four.slice(0, 2), done: false };
     }
-    return { type: r < .75 ? 'helper' : 'mischief', at: 2 * Math.round(N * (.17 + rng() * .4) / 2), done: false, covered: [] };
+    return { type: r < .75 || memory ? 'helper' : 'mischief', at: 2 * Math.round(N * (.17 + rng() * .4) / 2), done: false, covered: [] };
   }
   const STORE = 'turtle-mahjong-game', BEST = 'turtle-mahjong-best', SHADE = 'turtle-mahjong-shade',
-    SKIN = 'turtle-mahjong-style', LANG = 'turtle-mahjong-lang', BG = 'turtle-mahjong-backdrop';
+    SKIN = 'turtle-mahjong-style', LANG = 'turtle-mahjong-lang', BG = 'turtle-mahjong-backdrop', MEMORY = 'turtle-mahjong-memory';
   const load = k => { try { return localStorage.getItem(k); } catch { return null; } };
   const store = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
   const valid = s => s && SHAPES[s.shape || 'turtle'] && Array.isArray(s.faces) && Array.isArray(s.present) &&
     s.faces.length === BUILT[s.shape || 'turtle'].length && s.present.length === s.faces.length;
   // The Turtle keeps the key best times were stored under before there were shapes.
-  const bestKey = () => shape === 'turtle' ? BEST : BEST + '-' + shape;
+  const bestKey = () => (shape === 'turtle' ? BEST : BEST + '-' + shape) + (S.memory ? '-memory' : '');
 
   /* ---------- Tiles in the DOM ---------- */
   let tiles = [];
@@ -209,19 +212,27 @@
       el.classList.toggle('hint', hint.includes(i));
       const ev = S.event;
       el.classList.toggle('golden', on && !!ev && ev.type === 'golden' && !ev.done && ev.tiles.includes(i));
-      const covered = on && !!ev && ev.type === 'mischief' && ev.covered.includes(i);
+      const covered = on && (S.memory ? sel !== i && !peek.includes(i) : !!ev && ev.type === 'mischief' && ev.covered.includes(i));
       el.classList.toggle('covered', covered);
+      // Covers pop on and off; one that is still popping off can come back.
+      let c = el.querySelector('.cover');
       if (covered) {
-        const ref = `#${theme.id}-${EVENTS.mischief[theme.id]}`;
-        let c = el.querySelector('.cover');
+        if (c?._off) { c._off.cancel(); c._off = null; }
         if (!c) {
           c = document.createElement('span');
           c.className = 'cover';
           c.innerHTML = '<svg aria-hidden="true"><use width="100%" height="100%"></use></svg>';
           el.appendChild(c);
+          if (!calm.matches) c.animate([{ transform: 'scale(.2) rotate(-40deg)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 450, easing: 'cubic-bezier(.3,1.6,.5,1)' });
         }
-        c.querySelector('use').setAttribute('href', ref);
-      } else el.querySelector('.cover')?.remove(); // uncover() renders once its pop-off has played
+        c.querySelector('use').setAttribute('href', `#${theme.id}-${EVENTS.mischief[theme.id]}`);
+      } else if (c && !c._off) {
+        if (calm.matches) c.remove();
+        else {
+          c._off = c.animate([{ transform: 'none', opacity: 1 }, { transform: 'scale(1.6) rotate(25deg)', opacity: 0 }], { duration: 350, easing: 'ease-out' });
+          c._off.onfinish = () => c.remove();
+        }
+      }
       const ref = '#' + theme.id + '-k-' + f;
       if (el._ref !== ref) {
         el.querySelector('use').setAttribute('href', ref);
@@ -366,19 +377,28 @@
     if (!S.present[i] || S.over) return;
     startClock();
     clearHint();
-    if (tiles[i].classList.contains('covered')) { uncover(i); return; }
+    const peeked = peek.length > 0;
+    unpeek(); // a tap turns a wrong pair face down at once
+    if (S.event?.covered?.includes(i)) { uncover(i); return; }
     if (!isFree(i, S.present)) {
       const el = tiles[i];
       el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
-      if (sel !== null) { sel = null; render(); }
+      if (sel !== null || peeked) { sel = null; render(); }
       return;
     }
     if (sel === i) sel = null;
     else if (sel !== null && keyOf(S.faces[sel]) === keyOf(S.faces[i])) {
       takePair(sel, i);
       return;
+    } else if (sel !== null && S.memory) {
+      peek = [sel, i]; sel = null;
+      peekTimer = setTimeout(() => { unpeek(); render(); }, 1200);
     } else sel = i;
     render();
+  }
+  function unpeek() {
+    clearTimeout(peekTimer);
+    peek = [];
   }
 
   function takePair(a, b) {
@@ -497,20 +517,12 @@
     if (ev.covered.includes(sel)) sel = null;
     toast(() => tt().mischief);
     render();
-    if (!calm.matches) ev.covered.forEach(i => tiles[i].querySelector('.cover')
-      ?.animate([{ transform: 'scale(.2) rotate(-40deg)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 450, easing: 'cubic-bezier(.3,1.6,.5,1)' }));
   }
 
   function uncover(i) {
     const ev = S.event;
     ev.covered = ev.covered.filter(j => j !== i);
-    const c = tiles[i].querySelector('.cover');
-    tiles[i].classList.remove('covered');
-    if (c && !calm.matches) {
-      c.animate([{ transform: 'none', opacity: 1 }, { transform: 'scale(1.6) rotate(25deg)', opacity: 0 }], { duration: 350, easing: 'ease-out' })
-        .onfinish = () => render();
-    } else render();
-    save();
+    render();
   }
 
   /* ---------- How to play ---------- */
@@ -519,7 +531,7 @@
     const group = (rule, key) => `<div class="help-group">${[1, 2, 3, 4].map(n => mini(key + n)).join('')}</div><p>${rule}</p>`;
     const [play, free, stuck, surprises] = tr().help;
     $('#helpBody').innerHTML =
-      `<p>${play}</p><div class="help-group">${mini('c3')}${mini('c3')}</div><p>${free}</p>` +
+      `<p>${play}</p><div class="help-group">${mini('c3')}${mini('c3')}</div>` + (S?.memory ? `<p>${tr().memoryHelp}</p>` : '') + `<p>${free}</p>` +
       group(tt().flowersRule, 'f') + group(tt().seasonsRule, 's') + `<p>${stuck}</p><p>${surprises}</p>`;
     $('#help').hidden = false;
     paused = true;
@@ -537,7 +549,7 @@
   function undo() {
     const h = S.history.pop();
     if (!h) return;
-    clearHint(); sel = null; hideNotice();
+    clearHint(); unpeek(); sel = null; hideNotice();
     if (h.t === 'pair') { S.present[h.a] = S.present[h.b] = 1; }
     else if (h.t === 'pairs') h.list.forEach(([a, b]) => { S.present[a] = S.present[b] = 1; });
     else { S.faces = h.prev; }
@@ -567,7 +579,7 @@
     const pairs = [];
     Object.values(byKey).forEach(a => { for (let k = 0; k + 1 < a.length; k += 2) pairs.push([a[k], a[k + 1]]); });
     const out = assign(idx, pairs, Math.random);
-    clearHint(); sel = null;
+    clearHint(); unpeek(); sel = null;
     if (!out) {
       render();
       notice(tr().cantShuffle, tr().cantShuffleBody(idx.length), [[tr().undo, undo, true], [tr().newDeal, newDeal]]);
@@ -585,18 +597,18 @@
     if (!inProgress()) { fn(); return; }
     notice(title, tr().confirmBody(N - leftCount(), N), [[title, fn, true], [tr().keepPlaying, () => {}]]);
   }
-  function begin(seed) {
-    clearHint(); sel = null; hintCycle = 0; hideNotice();
+  function begin(seed, memory) {
+    clearHint(); unpeek(); sel = null; hintCycle = 0; hideNotice();
     clearTimeout(partyTimer);
     $('#party').replaceChildren();
-    S = fresh(seed);
+    S = fresh(seed, memory);
     render();
     $('#toast').hidden = true;
     if (S.event && S.event.type === 'golden') setTimeout(() => toast(() => tt().golden[0]), 500);
   }
-  const dealShape = id => { useShape(id); begin(1 + Math.floor(Math.random() * 99999)); };
+  const dealShape = id => { useShape(id); begin(1 + Math.floor(Math.random() * 99999), memoryBox.checked); };
   const newDeal = () => openShapes();
-  const restart = () => begin(S.seed);
+  const restart = () => begin(S.seed, S.memory);
 
   /* ---------- Choosing a shape ---------- */
   // How wide a tile of shape `id` would be on this screen, in px.
@@ -617,6 +629,10 @@
       `<rect x="${p.x2 * u + (z - p.z) * d}" y="${p.y2 * v + (z - p.z) * d}" width="${2 * u - 1}" height="${2 * v - 1}" rx="1.5" class="pz${Math.min(p.z, 4)}"/>`).join('');
     return `<svg viewBox="-1 -1 ${w * u + z * d + 2} ${h * v + z * d + 2}" aria-hidden="true">${tilesSvg}</svg>`;
   };
+  // Memory Mahjong is picked with the shape, and stays picked for the next new game.
+  const memoryBox = $('#memory');
+  memoryBox.checked = load(MEMORY) === '1';
+  memoryBox.onchange = () => store(MEMORY, memoryBox.checked ? '1' : '0');
   function openShapes() {
     const best = recommend(), list = $('#shapeList');
     list.innerHTML = '';
@@ -678,7 +694,7 @@
     if (k === 'h') showHint();
     else if (k === 'u') undo();
     else if (k === 's') shuffleTiles();
-    else if (k === 'escape') { sel = null; render(); }
+    else if (k === 'escape') { unpeek(); sel = null; render(); }
   });
 
   setInterval(() => {

@@ -43,6 +43,13 @@ Pick two free tiles with the same face to clear them. A tile is free when
 nothing rests on it and its left or right side is open. Any flower matches
 any flower, and any season matches any season.
 
+For a harder game, tick Memory Mahjong in the New deal dialog. Every tile
+then starts face down, under the same cover the style's mischief uses. Tap a
+free tile to turn it over, then a second one. A pair clears. Any other two
+show for a moment and turn back, so the game is also a game of memory. A tap
+turns them back at once. Memory games keep their own best times, and a
+helper comes in place of mischief.
+
 Every deal can be cleared. The game deals by playing the board backwards
 from full: each pair goes on two tiles that are free at the same moment, so
 removing the pairs in reverse order always works. Shuffle uses the same
