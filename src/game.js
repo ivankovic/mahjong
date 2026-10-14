@@ -247,9 +247,13 @@
   const save = () => store(STORE, JSON.stringify(S));
 
   /* ---------- Notices ---------- */
-  function notice(title, body, actions) {
+  // The tip line: who made the game, with a link to tip on GitHub Sponsors.
+  const SPONSOR = 'https://github.com/sponsors/ivankovic';
+  const tipHtml = () => `${tr().tip[0]}<a href="${SPONSOR}" target="_blank" rel="noopener">${tr().tip[1]}</a>`;
+  function notice(title, body, actions, tip = false) {
     $('#nTitle').textContent = title;
     $('#nBody').textContent = body;
+    $('#nTip').hidden = !tip;
     const row = $('#nActions');
     row.innerHTML = '';
     actions.forEach(([label, fn, primary]) => {
@@ -271,7 +275,7 @@
       const isBest = !best || S.elapsed < best;
       if (isBest) store(bestKey(), String(S.elapsed));
       celebrate(() => notice(tr().cleared, tr().clearedBody(fmt(S.elapsed), fmt(best), isBest),
-        [[tr().newDeal, newDeal, true], [tr().replay, restart]]));
+        [[tr().newDeal, newDeal, true], [tr().replay, restart]], true));
     } else if (countPairs() === 0) {
       notice(tr().stuck, tr().stuckBody(left),
         [[tr().shuffleTiles, shuffleTiles, true], [tr().undo, undo], [tr().newDeal, newDeal]]);
@@ -532,7 +536,7 @@
     const [play, free, stuck, surprises] = tr().help;
     $('#helpBody').innerHTML =
       `<p>${play}</p><div class="help-group">${mini('c3')}${mini('c3')}</div>` + (S?.memory ? `<p>${tr().memoryHelp}</p>` : '') + `<p>${free}</p>` +
-      group(tt().flowersRule, 'f') + group(tt().seasonsRule, 's') + `<p>${stuck}</p><p>${surprises}</p>`;
+      group(tt().flowersRule, 'f') + group(tt().seasonsRule, 's') + `<p>${stuck}</p><p>${surprises}</p><p class="tip">${tipHtml()}</p>`;
     $('#help').hidden = false;
     paused = true;
     $('#helpClose').focus();
@@ -741,6 +745,7 @@
     document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = tr()[el.dataset.i18n]; });
     $('#helpBtn').setAttribute('aria-label', tr().howTo);
     $('#helpBtn').title = tr().howTo;
+    $('#nTip').innerHTML = tipHtml();
     $('#skinList').setAttribute('aria-label', tr().tileStyle);
     document.querySelectorAll('.bg').forEach(b => { b.textContent = tr()[BG_WORD[b.dataset.bg]]; });
     $('#langs').setAttribute('aria-label', tr().language);

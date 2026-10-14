@@ -2,6 +2,8 @@
 
 **[▶ Play it here](https://ivankovic.github.io/mahjong/)**
 
+Made by one person. Free. No ads. Forever. [You can tip me on GitHub ♥](https://github.com/sponsors/ivankovic)
+
 ![The same game in each tile style, crossfading from one to the next](docs/themes.gif)
 
 Mahjong solitaire in the browser, in English, German and Croatian.

@@ -181,6 +181,8 @@ body {
 #helpBody { display: flex; flex-direction: column; gap: 8px; }
 .help p { color: var(--ink); }
 .help b { color: var(--accent); }
+.notice .tip { font-size: .85rem; }
+.tip a { color: var(--accent); font-weight: 600; }
 .help-group { display: flex; gap: 6px; }
 .mini-tile { width: 36px; height: 48px; background: #fbf7ec; border-radius: 5px; box-shadow: 1px 2px 0 var(--jade); }
 
