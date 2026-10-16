@@ -27,6 +27,10 @@
           <span id="bgLabel" data-i18n="background">Background</span>
           <div class="bgs" id="bgs" role="radiogroup" aria-labelledby="bgLabel"></div>
         </div>
+        <div class="bg-row">
+          <span id="sndLabel" data-i18n="sound">Sound</span>
+          <div class="bgs" id="snds" role="radiogroup" aria-labelledby="sndLabel"></div>
+        </div>
       </div>
     </div>
     <div class="actions">
@@ -44,6 +48,9 @@
     <div class="board shade-on" id="board" aria-label="Mahjong solitaire board"></div>
     <div class="party" id="party" aria-hidden="true"></div>
     <div class="toast" id="toast" role="status" hidden></div>
+    <button class="help-btn sound-btn" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound" title="Sound">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M3.5 9h4l5-4.5v15l-5-4.5h-4z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12"/><path class="cross" d="M16 9.5l5 5M21 9.5l-5 5"/></svg>
+    </button>
     <button class="help-btn" id="helpBtn" type="button" aria-label="How to play" title="How to play">?</button>
     <div class="notice" id="shapes" hidden>
       <div class="card shapes-card" role="dialog" aria-modal="true" aria-labelledby="shapesTitle">
@@ -76,6 +83,7 @@
 
 
 <script src="src/i18n.js"></script>
+<script src="src/audio.js"></script>
 <script src="src/game.js"></script>
 </body>
 </html>

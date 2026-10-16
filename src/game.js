@@ -154,7 +154,8 @@
     return { type: r < .75 || memory ? 'helper' : 'mischief', at: 2 * Math.round(N * (.17 + rng() * .4) / 2), done: false, covered: [] };
   }
   const STORE = 'turtle-mahjong-game', BEST = 'turtle-mahjong-best', SHADE = 'turtle-mahjong-shade',
-    SKIN = 'turtle-mahjong-style', LANG = 'turtle-mahjong-lang', BG = 'turtle-mahjong-backdrop', MEMORY = 'turtle-mahjong-memory';
+    SKIN = 'turtle-mahjong-style', LANG = 'turtle-mahjong-lang', BG = 'turtle-mahjong-backdrop', MEMORY = 'turtle-mahjong-memory',
+    SOUND = 'turtle-mahjong-sound';
   const load = k => { try { return localStorage.getItem(k); } catch { return null; } };
   const store = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
   const valid = s => s && SHAPES[s.shape || 'turtle'] && Array.isArray(s.faces) && Array.isArray(s.present) &&
@@ -271,6 +272,7 @@
     const left = leftCount();
     if (left === 0) {
       S.over = true; S.started = false;
+      Sound.win();
       const best = Number(load(bestKey())) || 0;
       const isBest = !best || S.elapsed < best;
       if (isBest) store(bestKey(), String(S.elapsed));
@@ -409,6 +411,7 @@
     S.present[a] = S.present[b] = 0;
     S.history.push({ t: 'pair', a, b });
     leave([a, b]);
+    Sound.pair();
     if (sel === a || sel === b) sel = null;
     const ev = S.event;
     const struck = ev && ev.type === 'golden' && !ev.done && (ev.tiles.includes(a) || ev.tiles.includes(b));
@@ -417,6 +420,7 @@
     checkEnd();
     if (S.over) return;
     if (struck) {
+      Sound.golden();
       toast(() => tt().golden[1]);
       pairUp();
     }
@@ -443,6 +447,7 @@
       if (S.present[a] || S.present[b]) return; // undone meanwhile
       tiles[a].classList.remove('queued'); tiles[b].classList.remove('queued');
       leave([a, b]);
+      Sound.pair();
     }, 300 + k * gap));
     setTimeout(() => { checkEnd(); if (!S.over) surprise(); }, 300 + pairs.length * gap);
   }
@@ -698,6 +703,7 @@
     if (k === 'h') showHint();
     else if (k === 'u') undo();
     else if (k === 's') shuffleTiles();
+    else if (k === 'm') toggleSound();
     else if (k === 'escape') { unpeek(); sel = null; render(); }
   });
 
@@ -748,6 +754,9 @@
     $('#nTip').innerHTML = tipHtml();
     $('#skinList').setAttribute('aria-label', tr().tileStyle);
     document.querySelectorAll('.bg').forEach(b => { b.textContent = tr()[BG_WORD[b.dataset.bg]]; });
+    document.querySelectorAll('.snd').forEach(b => { b.textContent = tr()[SOUND_WORD[b.dataset.snd]]; });
+    $('#soundBtn').setAttribute('aria-label', tr().soundBtn);
+    $('#soundBtn').title = tr().soundBtn;
     $('#langs').setAttribute('aria-label', tr().language);
     board.setAttribute('aria-label', tr().board);
     document.querySelectorAll('.lang').forEach(b => b.setAttribute('aria-checked', b.dataset.lang === lang));
@@ -811,6 +820,32 @@
   });
   useBg(load(BG));
 
+  /* ---------- Sound ---------- */
+  // Off, effects only, or effects and music (src/audio.js). Music unless the
+  // viewer chose otherwise; only a choice is stored. The speaker at the
+  // board's corner, and M, turn it off and back on to what it was.
+  const SOUNDS = ['off', 'effects', 'music'], SOUND_WORD = { off: 'sndOff', effects: 'sndEffects', music: 'sndMusic' };
+  let soundOn = 'music';
+  function useSound(m, chosen) {
+    m = SOUNDS.includes(m) ? m : 'music';
+    if (m !== 'off') soundOn = m;
+    Sound.mode(m);
+    if (chosen) store(SOUND, m);
+    document.querySelectorAll('.snd').forEach(b => b.setAttribute('aria-checked', b.dataset.snd === m));
+    $('#soundBtn').setAttribute('aria-pressed', m !== 'off');
+  }
+  const toggleSound = () => useSound($('#soundBtn').getAttribute('aria-pressed') === 'true' ? 'off' : soundOn, true);
+  SOUNDS.forEach(m => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'snd'; b.dataset.snd = m;
+    b.setAttribute('role', 'radio');
+    b.textContent = tr()[SOUND_WORD[m]];
+    b.onclick = () => useSound(m, true);
+    $('#snds').appendChild(b);
+  });
+  $('#soundBtn').onclick = toggleSound;
+  useSound(load(SOUND));
+
   /* ---------- Styles ---------- */
   function labelSkins() {
     document.querySelectorAll('.skin').forEach(b => {
@@ -833,6 +868,7 @@
     theme = THEMES.find(t => t.id === id) || THEMES[0];
     document.documentElement.dataset.skin = theme.id;
     store(SKIN, theme.id);
+    Sound.style(theme.id);
     retoast();
     $('#skinBtnUse').setAttribute('href', `#${theme.id}-k-${theme.preview}`);
     drawScene();

@@ -177,6 +177,13 @@ body {
 }
 .help-btn:hover { border-color: var(--accent); }
 .help-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* The speaker in the other corner turns sound off and back on. */
+.sound-btn { right: auto; left: 4px; display: grid; place-items: center; }
+.sound-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.sound-btn .spk { fill: currentColor; }
+.sound-btn .cross, .sound-btn[aria-pressed="false"] .wave { display: none; }
+.sound-btn[aria-pressed="false"] .cross { display: inline; }
+.sound-btn[aria-pressed="false"] { color: var(--muted); }
 .notice .card.help { max-width: 30rem; max-height: calc(100% - 8px); overflow-y: auto; }
 #helpBody { display: flex; flex-direction: column; gap: 8px; }
 .help p { color: var(--ink); }
@@ -317,10 +324,10 @@ body {
 .skin-list { display: flex; flex-direction: column; gap: 6px; }
 .bg-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 4px 2px; border-top: 1px solid var(--btn-line); font: 600 .82rem/1 var(--f-ui); color: var(--muted); }
 .bgs { display: inline-flex; border: 1px solid var(--btn-line); border-radius: 6px; overflow: hidden; }
-.bg { font: 600 .78rem/1 var(--f-ui); color: var(--muted); background: var(--btn); border: 0; padding: .5rem .6rem; cursor: pointer; }
-.bg + .bg { border-left: 1px solid var(--btn-line); }
-.bg[aria-checked="true"] { background: var(--jade); color: var(--on-jade); }
-.bg:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.bg, .snd { font: 600 .78rem/1 var(--f-ui); color: var(--muted); background: var(--btn); border: 0; padding: .5rem .6rem; cursor: pointer; }
+.bg + .bg, .snd + .snd { border-left: 1px solid var(--btn-line); }
+.bg[aria-checked="true"], .snd[aria-checked="true"] { background: var(--jade); color: var(--on-jade); }
+.bg:focus-visible, .snd:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
 /* Language switch */
 .langs { display: inline-flex; border: 1px solid var(--btn-line); border-radius: 6px; overflow: hidden; }

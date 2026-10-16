@@ -35,6 +35,17 @@ Clearing the whole board starts a celebration in the same style: lanterns
 and sparks, leaping dogs under a rain of bones, leaping chameleons and
 butterflies, fish and a whale swimming past, or a swarm of bats.
 
+Each style has its own music, which the game writes as it plays, so a new
+tune comes every couple of minutes. Classic plucks a pentatonic tune over a
+drone. The dogs get a bouncy tune and the cats a swing with a walking bass.
+The jungle has marimba and shakers, the reef slow bells, Enchanted Land a
+music box waltz, the mountain a flute and cowbells, and Haunted Night a
+creeping celesta and a theremin. Clearing a pair, the golden pair and the
+whole board each have a sound in the same style and key. The speaker at
+the bottom left, or M, turns sound off and on; the style menu picks music,
+effects only, or off. There are no sound files: everything is made with
+the Web Audio API.
+
 Most deals have one surprise, picked from the deal number, so a restart
 brings the same one back. Two tiles may glow (match one and PAIR UP clears
 every pair that is open at that moment), a helper may come and take a pair for you, or a bit of
@@ -64,6 +75,7 @@ method on the tiles that are left.
 | H              | Show a matching pair (press again for another) |
 | U, Ctrl+Z      | Undo the last pair or shuffle               |
 | S              | Shuffle the remaining tiles                 |
+| M              | Sound off and on                            |
 | Esc            | Clear the selection                         |
 | ?              | How to play                                 |
 
@@ -86,6 +98,7 @@ Then open <http://localhost:8000/>.
 - `index.html`: the page
 - `src/game.js`: layout, dealing, rules and the board
 - `src/style.css`: the table and the tiles' bodies
+- `src/audio.js`: the music and sound effects, made while the game runs
 - `src/i18n.js`: every word the game shows, in each language (German uses
   Swiss spelling, "ss" for "ß")
 - `assets/themes/<style>.svg`: each style's 42 tile faces, one `<symbol>` each
